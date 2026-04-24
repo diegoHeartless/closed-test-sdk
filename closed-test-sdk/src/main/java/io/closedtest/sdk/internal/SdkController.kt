@@ -451,7 +451,7 @@ internal object SdkController {
                 put("sent_at", EventJson.nowIsoUtc())
                 put("events", JsonArray(events))
             }
-            val bodyStr = json.encodeToString(body)
+            val bodyStr = json.encodeToString(JsonObject.serializer(), body)
             val post = withContext(Dispatchers.IO) { ingest.postEvents(bodyStr, token!!) }
             if (post.isSuccess) {
                 dao.deleteIds(batch.map { it.id })
