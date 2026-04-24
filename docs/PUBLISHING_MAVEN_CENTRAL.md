@@ -49,32 +49,77 @@ Gradle-настройки публикации и POM лежат в **`closed-te
 
 ## 3. GPG: ключ и keyserver
 
-На машине, где подписываете релиз (или в CI с экспортом ключа в секрет):
+Нужен **один** долгоживущий ключ для подписи артефактов перед загрузкой в Maven Central. Пароль от ключа (passphrase) храните в менеджере паролей; **приватный ключ** — только в `~/.gradle/gradle.properties` локально или в **секретах CI**, не в git.
+
+### 3.1. Установить GnuPG
+
+| ОС | Как |
+|----|-----|
+| **Windows** | [Gpg4win](https://www.gpg4win.org/) (в составе — `gpg` в `cmd` / PowerShell после установки) или `gpg` из Git for Windows. |
+| **macOS** | `brew install gnupg` |
+| **Linux** | `sudo apt install gnupg` (Debian/Ubuntu) или пакет `gnupg` вашего дистрибутива. |
+
+Проверка: `gpg --version`.
+
+### 3.2. Создать ключ
 
 ```bash
 gpg --full-generate-key
-# тип RSA, длина 4096, имя и email, надёжный passphrase
 ```
 
-Узнайте **key id** (короткий идентификатор):
+Рекомендуемые ответы мастера (для Maven Central обычно достаточно так):
+
+1. **Тип ключа** — `RSA and RSA` (по умолчанию).
+2. **Размер RSA** — `4096`.
+3. **Срок действия** — `0` = без срока (удобно для CI; иначе не забудьте продлить до истечения).
+4. **Имя и email** — реальные (email лучше совпадать с тем, что виден на GitHub / в Sonatype, но это не жёсткое правило Central).
+5. **Passphrase** — надёжный пароль; он понадобится Gradle как `signing.password`.
+
+### 3.3. Узнать идентификатор ключа
 
 ```bash
 gpg --list-secret-keys --keyid-format=long
 ```
 
-Опубликуйте **публичный** ключ на сервер ключей (Central проверяет подписи по опубликованным ключам), например:
+В строке вида `sec   rsa4096/XXXXXXXXXXXXXXXX 2026-04-22 [SC]` возьмите **`XXXXXXXXXXXXXXXX`** (16 hex-символов) — это **long key id**. Для `signing.keyId` в Gradle часто указывают **последние 8 символов** (short id), например `XXXXXXXX`.
+
+### 3.4. Опубликовать публичный ключ
+
+Maven Central проверяет подписи по **опубликованному** открытому ключу. Отправка на keyserver:
 
 ```bash
-gpg --keyserver keys.openpgp.org --send-keys <KEY_ID>
+gpg --keyserver keys.openpgp.org --send-keys <KEY_ID_SHORT_OR_LONG>
 ```
 
-Экспорт **приватного** ключа в ASCII armor (для CI часто кладут в секрет как одну строку с `\n`):
+Если `send-keys` не проходит, на [keys.openpgp.org](https://keys.openpgp.org/) можно **загрузить** экспортированный публичный ключ вручную:
+
+```bash
+gpg --armor --export <KEY_ID> > public-key.asc
+```
+
+### 3.5. Экспорт приватного ключа для Gradle (in-memory)
+
+Файл **только для себя**, не в репозиторий:
 
 ```bash
 gpg --armor --export-secret-keys <KEY_ID> > private-key.asc
 ```
 
-**Не коммитьте** `private-key.asc` и пароль в репозиторий.
+Содержимое `private-key.asc` целиком (включая строки `BEGIN` / `END`) вставьте в **`signing.key`** в `~/.gradle/gradle.properties`. Если вставляете **одной строкой**, замените реальные переводы строк на литералы `\n` (как в примере в §4).
+
+Альтернатива без хранения ключа в файле properties: оставить ключ только в **gpg-agent** и в Gradle включить `useGpgCmd()` (потребует правки `build.gradle.kts`; для headless CI чаще используют именно `signing.key` + `signing.password`).
+
+### 3.6. Проверка, что Gradle подписывает
+
+После настройки свойств из §4:
+
+```bash
+./gradlew :closed-test-sdk:publishToMavenLocal
+```
+
+В `~/.m2/repository/com/groundspaceteam/closed-test-sdk/<version>/` рядом с `.aar`, `.pom`, jar должны появиться файлы **`.asc`**. Если `.asc` нет — `signing.key` не подхватился (имя свойства, экранирование `\n`, кодировка).
+
+**Не коммитьте** `private-key.asc`, `public-key.asc` с секретом и пароль в репозиторий.
 
 ---
 
@@ -114,20 +159,50 @@ signing.keyId=ABCDEF01
 | `POM_SCM_DEVELOPER_CONNECTION` | `scm:git:ssh://...` |
 | `POM_DEVELOPER_ID` / `POM_DEVELOPER_NAME` | Секция `developers` для Central. |
 
-Если не заданы, в POM остаются плейсхолдеры `CHANGE_ME` в SCM — **замените** на реальные значения до первой публикации в Central.
+Если не заданы, для `url` / `scm` / `developers` используются значения по умолчанию из `closed-test-sdk/build.gradle.kts` (см. §1).
 
 ---
 
 ## 5. Токен Sonatype (Central Portal)
 
 1. В [central.sonatype.com](https://central.sonatype.com/) откройте профиль → **View Account** → **Generate User Token**.
-2. Сохраните **username** и **password** токена (password показывают один раз).
+2. Сохраните **username** и **password** токена (password часто показывают один раз — храните только в менеджере секретов / CI).
 
 Дальнейшая загрузка в Central идёт **через Portal API** или инструменты сообщества — **отдельного поддерживаемого Sonatype Gradle-плагина «нажал — улетело в Central» на апрель 2026 нет**; в [официальной заметке](https://central.sonatype.org/publish/publish-portal-gradle/) указаны **JReleaser** и другие варианты.
 
-В CI удобно пробрасывать секреты в Gradle через префикс `ORG_GRADLE_PROJECT_` (см. [Gradle](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)), например:
+### Секреты в CI (например GitHub Actions)
 
-- `ORG_GRADLE_PROJECT_signing.key` / `signing.password` — для подписи (см. §4).
+Создайте в репозитории **Settings → Secrets and variables → Actions** секреты (имена можно свои, ниже — пример):
+
+| Секрет | Содержимое |
+|--------|------------|
+| `MAVEN_CENTRAL_USERNAME` | Username из User Token Sonatype |
+| `MAVEN_CENTRAL_PASSWORD` | Password из User Token Sonatype |
+| `SIGNING_KEY` | ASCII-armored приватный GPG-ключ целиком (или отдельный секрет под пароль ключа) |
+| `SIGNING_PASSWORD` | Passphrase от GPG-ключа |
+
+В workflow перед `./gradlew …` задайте переменные окружения с префиксом **`ORG_GRADLE_PROJECT_`** — Gradle подставит их как [project properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties):
+
+```yaml
+env:
+  ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+  ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+  ORG_GRADLE_PROJECT_signing.key: ${{ secrets.SIGNING_KEY }}
+  ORG_GRADLE_PROJECT_signing.password: ${{ secrets.SIGNING_PASSWORD }}
+```
+
+Имена **`mavenCentralUsername`** / **`mavenCentralPassword`** должны совпасть с тем, что ожидает ваш скрипт публикации (JReleaser, кастомный `build.gradle` и т.д.). Пока в этом репозитории **нет** шага публикации в Central из Gradle — секреты понадобятся, когда добавите workflow или JReleaser; до этого для локальной проверки достаточно `~/.gradle/gradle.properties`.
+
+Многострочный GPG-ключ в `env` в GitHub Actions неудобен: часто кладут ключ в секрет **одной строкой (Base64)** и в шаге job пишут во временный файл перед вызовом Gradle, либо используют **JReleaser** со своей схемой секретов (см. их документацию).
+
+В этом репозитории есть **`.github/workflows/sdk.yml`**: job **`verify-signing`** (только при **Run workflow** вручную) читает секреты **`SIGNING_KEY`** и **`SIGNING_PASSWORD`** и запускает `publishToMavenLocal`, чтобы убедиться, что подпись в CI работает. Обычные push/PR собирают AAR **без** секретов.
+
+Локально (без CI) те же значения можно положить в **`~/.gradle/gradle.properties`**:
+
+```properties
+mavenCentralUsername=...
+mavenCentralPassword=...
+```
 
 ---
 
