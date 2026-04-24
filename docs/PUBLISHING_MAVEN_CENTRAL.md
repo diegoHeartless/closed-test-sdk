@@ -226,7 +226,7 @@ mavenCentralPassword=...
 
 ### 6.1. JReleaser в этом репозитории (Central Publisher Portal)
 
-Файлы: **`jreleaser.yml`** (корень), плагин **`org.jreleaser`** в корневом **`build.gradle.kts`**, staging-репозиторий **`maven { name = "staging"; url = …/build/staging-deploy }`** в **`closed-test-sdk/build.gradle.kts`**. Версия релиза для JReleaser берётся из **`rootProject.version`** (= `closedTestSdk` в **`gradle/libs.versions.toml`**).
+Файлы: **`jreleaser.yml`** (корень), плагин **`org.jreleaser`** в корневом **`build.gradle.kts`**, staging-репозиторий **`maven { name = "staging"; url = …/build/staging-deploy }`** в **`closed-test-sdk/build.gradle.kts`**. Версия релиза для JReleaser берётся из **`rootProject.version`** (= `closedTestSdk` в **`gradle/libs.versions.toml`**). В корне задан **`group = "com.groundspaceteam"`**; в **`jreleaser.yml`** координаты продублированы в **`project.languages.java`** (так требует модель JReleaser).
 
 **Локально** (в `~/.gradle/gradle.properties` или в окружении):
 
