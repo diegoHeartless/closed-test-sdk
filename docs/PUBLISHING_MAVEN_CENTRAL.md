@@ -195,7 +195,12 @@ env:
 
 Многострочный GPG-ключ в `env` в GitHub Actions неудобен: часто кладут ключ в секрет **одной строкой (Base64)** и в шаге job пишут во временный файл перед вызовом Gradle, либо используют **JReleaser** со своей схемой секретов (см. их документацию).
 
-В этом репозитории есть **`.github/workflows/sdk.yml`**: job **`verify-signing`** (только при **Run workflow** вручную) читает секреты **`SIGNING_KEY`** и **`SIGNING_PASSWORD`** и запускает `publishToMavenLocal`, чтобы убедиться, что подпись в CI работает. Обычные push/PR собирают AAR **без** секретов.
+В этом репозитории:
+
+- **`.github/workflows/sdk.yml`** — сборка на push/PR (без секретов).
+- **`.github/workflows/verify-gpg.yml`** — **только** ручной запуск (**Actions → Verify GPG signing → Run workflow**). Читает **`SIGNING_KEY`** и **`SIGNING_PASSWORD`**, выполняет `publishToMavenLocal` и проверяет наличие **`.asc`**.
+
+Отдельный workflow нужен потому, что job с условием `if: github.event_name == 'workflow_dispatch'` **не выполнится** при **Re-run** прогона, который изначально был от **push** (событие остаётся `push`). Для проверки подписи всегда запускайте именно workflow **Verify GPG signing**.
 
 Локально (без CI) те же значения можно положить в **`~/.gradle/gradle.properties`**:
 
