@@ -114,7 +114,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.okhttp)
+    // Public API (ClosedTestOptions.okHttpClient) — must be api so apps compile against the SDK.
+    api(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 }
