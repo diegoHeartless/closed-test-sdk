@@ -6,6 +6,9 @@
 project:
   name: closed-test-sdk
   description: Closed testing proof / usage SDK for Android (ingest client).
+  java:
+    groupId: com.groundspaceteam
+    artifactId: closed-test-sdk
 
 # Artifacts are already signed by Gradle (maven-publish + signing).
 signing:

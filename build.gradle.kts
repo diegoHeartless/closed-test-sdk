@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.jreleaser)
 }
 
+group = "com.groundspaceteam"
 version = libs.versions.closedTestSdk.get()
 
 jreleaser {
