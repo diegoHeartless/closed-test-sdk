@@ -191,7 +191,7 @@ env:
   ORG_GRADLE_PROJECT_signing.password: ${{ secrets.SIGNING_PASSWORD }}
 ```
 
-Имена **`mavenCentralUsername`** / **`mavenCentralPassword`** должны совпасть с тем, что ожидает ваш скрипт публикации (JReleaser, кастомный `build.gradle` и т.д.). Пока в этом репозитории **нет** шага публикации в Central из Gradle — секреты понадобятся, когда добавите workflow или JReleaser; до этого для локальной проверки достаточно `~/.gradle/gradle.properties`.
+Имена **`mavenCentralUsername`** / **`mavenCentralPassword`** в таблице ниже — для произвольных скриптов. Для **JReleaser** в этом репозитории используются переменные **`JRELEASER_MAVENCENTRAL_SONATYPE_*`** (см. §6.1).
 
 Многострочный GPG-ключ в `env` в GitHub Actions неудобен: часто кладут ключ в секрет **одной строкой (Base64)** и в шаге job пишут во временный файл перед вызовом Gradle, либо используют **JReleaser** со своей схемой секретов (см. их документацию).
 
@@ -199,8 +199,9 @@ env:
 
 - **`.github/workflows/sdk.yml`** — сборка на push/PR (без секретов).
 - **`.github/workflows/verify-gpg.yml`** — **только** ручной запуск (**Actions → Verify GPG signing → Run workflow**). Читает **`SIGNING_KEY`** и **`SIGNING_PASSWORD`**, выполняет `publishToMavenLocal` и проверяет наличие **`.asc`**.
+- **`.github/workflows/publish-maven-central.yml`** — **только** ручной запуск (**Publish to Maven Central (Portal)**). Секреты: **`MAVEN_CENTRAL_USERNAME`**, **`MAVEN_CENTRAL_PASSWORD`** (User Token с [central.sonatype.com](https://central.sonatype.com/)), плюс **`SIGNING_KEY`** / **`SIGNING_PASSWORD`**. Выполняет **`gradle jreleaserDeploy`**: сначала `:closed-test-sdk:publishReleasePublicationToStagingRepository` (подпись Gradle), затем загрузку в Portal через JReleaser (конфиг **`jreleaser.yml`** в корне репозитория). Опционально **Dry run** в UI workflow.
 
-Отдельный workflow нужен потому, что job с условием `if: github.event_name == 'workflow_dispatch'` **не выполнится** при **Re-run** прогона, который изначально был от **push** (событие остаётся `push`). Для проверки подписи всегда запускайте именно workflow **Verify GPG signing**.
+Отдельный workflow для GPG нужен потому, что job с условием `if: github.event_name == 'workflow_dispatch'` **не выполнится** при **Re-run** прогона, который изначально был от **push** (событие остаётся `push`). Для проверки подписи всегда запускайте именно workflow **Verify GPG signing**.
 
 Локально (без CI) те же значения можно положить в **`~/.gradle/gradle.properties`**:
 
@@ -217,11 +218,40 @@ mavenCentralPassword=...
 
 1. Собрать и **подписать** набор артефактов: AAR, POM, `-sources.jar`, `-javadoc.jar` и для каждого файла **`.asc`** (у этого репозитория Gradle уже настроен `maven-publish` + `withSourcesJar()` / `withJavadocJar()` + подпись при наличии `signing.*`).
 2. Передать их в Central одним из способов:
-   - **[JReleaser](https://jreleaser.org/)** с [публикацией через Central Publisher Portal](https://jreleaser.org/guide/latest/examples/maven/maven-central.html#_portal_publisher_api) (рекомендуемый путь для CI из документации Sonatype);
+   - **[JReleaser](https://jreleaser.org/)** с [публикацией через Central Publisher Portal](https://jreleaser.org/guide/latest/examples/maven/maven-central.html#_portal_publisher_api) (рекомендуемый путь для CI из документации Sonatype) — **в этом репозитории уже подключено** (см. §6.1);
    - **ручная загрузка** deployment bundle / файлов через UI **Deployments**, если объём релизов небольшой;
    - свой скрипт по [Portal API](https://central.sonatype.org/publish/publish-portal-api/).
 3. В разделе **Deployments** дождаться валидации (POM, подписи, координаты, наличие sources/javadoc и т.д.).
 4. Нажать **Publish** в UI (если не включён автоматический выпуск).
+
+### 6.1. JReleaser в этом репозитории (Central Publisher Portal)
+
+Файлы: **`jreleaser.yml`** (корень), плагин **`org.jreleaser`** в корневом **`build.gradle.kts`**, staging-репозиторий **`maven { name = "staging"; url = …/build/staging-deploy }`** в **`closed-test-sdk/build.gradle.kts`**. Версия релиза для JReleaser берётся из **`rootProject.version`** (= `closedTestSdk` в **`gradle/libs.versions.toml`**).
+
+**Локально** (в `~/.gradle/gradle.properties` или в окружении):
+
+| Переменная / свойство | Назначение |
+|------------------------|------------|
+| `signing.key` / `signing.password` | Как в §4 — Gradle подписывает артефакты перед загрузкой. |
+| `JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME` | Username из **User Token** Central Portal. |
+| `JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD` | Password (секрет) из того же токена. |
+
+Команды:
+
+```bash
+# одной цепочкой: staging publish → jreleaserDeploy (зависимость настроена в корневом build.gradle.kts)
+./gradlew jreleaserDeploy
+```
+
+Либо явно по шагам: `./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository`, затем `./gradlew jreleaserDeploy`.
+
+Проверка конфигурации без загрузки: `./gradlew jreleaserConfig` или `./gradlew jreleaserDeploy --dryrun`.
+
+**Авторизация в API:** в **`jreleaser.yml`** для deployer по умолчанию действует режим из JReleaser (**`BEARER`**). Если Portal отклоняет запрос, попробуйте в блоке `sonatype` задать **`authorization: BASIC`** (часто подходит пара username/password из User Token). Подробнее: [MavenCentral deployer](https://jreleaser.org/guide/latest/reference/deploy/maven/maven-central.html).
+
+**Android AAR:** в **`jreleaser.yml`** задан **`artifactOverrides`** с **`jar: false`**, чтобы не требовался основной `.jar` (основной артефакт — **`.aar`**).
+
+После успешного **`jreleaserDeploy`** зайдите на [central.sonatype.com](https://central.sonatype.com/) → **Deployments** → дождитесь валидации → **Publish**.
 
 Ссылки Sonatype:
 

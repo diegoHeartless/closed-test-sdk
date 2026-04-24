@@ -52,6 +52,12 @@ android {
 
 afterEvaluate {
     publishing {
+        repositories {
+            maven {
+                name = "staging"
+                url = uri(layout.buildDirectory.dir("staging-deploy"))
+            }
+        }
         publications {
             create<MavenPublication>("release") {
                 groupId = "com.groundspaceteam"

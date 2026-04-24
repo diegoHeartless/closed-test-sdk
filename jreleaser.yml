@@ -1,0 +1,29 @@
+# JReleaser: upload staged Maven layout to Sonatype Central Publisher Portal.
+# Stage first: ./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository (with signing.*)
+# Then:      ./gradlew jreleaserDeploy
+# Or one shot: ./gradlew jreleaserDeploy  (root wires deploy → staging publish)
+
+project:
+  name: closed-test-sdk
+  description: Closed testing proof / usage SDK for Android (ingest client).
+
+# Artifacts are already signed by Gradle (maven-publish + signing).
+signing:
+  pgp:
+    active: NEVER
+
+deploy:
+  maven:
+    mavenCentral:
+      sonatype:
+        active: RELEASE
+        url: https://central.sonatype.com/api/v1/publisher
+        applyMavenCentralRules: true
+        sign: false
+        namespace: com.groundspaceteam
+        stagingRepositories:
+          - closed-test-sdk/build/staging-deploy
+        artifactOverrides:
+          - groupId: com.groundspaceteam
+            artifactId: closed-test-sdk
+            jar: false
