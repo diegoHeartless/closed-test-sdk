@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ClosedTest Sample</string>
+    <string name="btn_screen">Track screen (demo_home)</string>
+    <string name="btn_flush">Flush queue</string>
+    <string name="btn_deep_link">Open bind deep link</string>
+    <string name="btn_bind">Bind tester manually</string>
+</resources>
