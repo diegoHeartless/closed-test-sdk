@@ -249,7 +249,7 @@ mavenCentralPassword=...
 
 **Авторизация в API:** в **`jreleaser.yml`** для deployer по умолчанию действует режим из JReleaser (**`BEARER`**). Если Portal отклоняет запрос, попробуйте в блоке `sonatype` задать **`authorization: BASIC`** (часто подходит пара username/password из User Token). Подробнее: [MavenCentral deployer](https://jreleaser.org/guide/latest/reference/deploy/maven/maven-central.html).
 
-**Android AAR:** в **`jreleaser.yml`** задан **`artifactOverrides`** с **`jar: false`**, чтобы не требовался основной `.jar` (основной артефакт — **`.aar`**).
+**Android AAR:** в **`jreleaser.yml`** задан **`artifactOverrides`** с **`jar: false`**, чтобы не требовался основной `.jar` (основной артефакт — **`.aar`**). Для **`applyMavenCentralRules: true`** включён **`verifyPom: false`**: PomChecker (Maven без android-aar lifecycle) падает на **`<packaging>aar</packaging>`**; для Central такой POM нормален.
 
 После успешного **`jreleaserDeploy`** зайдите на [central.sonatype.com](https://central.sonatype.com/) → **Deployments** → дождитесь валидации → **Publish**.
 

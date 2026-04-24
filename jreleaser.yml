@@ -23,6 +23,9 @@ deploy:
         active: RELEASE
         url: https://central.sonatype.com/api/v1/publisher
         applyMavenCentralRules: true
+        # PomChecker uses stock Maven and fails on <packaging>aar</packaging> (“Unknown packaging: aar”).
+        # The POM is still valid for Central; Sonatype accepts AAR coordinates.
+        verifyPom: false
         sign: false
         namespace: com.groundspaceteam
         stagingRepositories:
@@ -31,3 +34,4 @@ deploy:
           - groupId: com.groundspaceteam
             artifactId: closed-test-sdk
             jar: false
+            verifyPom: false
