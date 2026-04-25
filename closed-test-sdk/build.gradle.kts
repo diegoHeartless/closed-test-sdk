@@ -63,6 +63,8 @@ afterEvaluate {
                 groupId = "com.groundspaceteam"
                 artifactId = "closed-test-sdk"
                 version = libs.versions.closedTestSdk.get()
+                // Central + JReleaser: avoid extra unsigned `*.module` (Gradle metadata); consumers use POM + AAR.
+                publishGradleModuleMetadata.set(false)
                 from(components["release"])
                 pom {
                     name.set("closed-test-sdk")
@@ -99,8 +101,11 @@ afterEvaluate {
         }
     }
 
+    // When publishing to staging for JReleaser → Central, signatures are created by JReleaser (all files).
+    // Set ORG_GRADLE_PROJECT_skipMavenSigning=true in CI for that path. Local `publishToMavenLocal` still uses Gradle signing.
     val signingKey = findProperty("signing.key") as String?
-    if (!signingKey.isNullOrBlank()) {
+    val skipMavenSigning = findProperty("skipMavenSigning")?.toString().equals("true", ignoreCase = true)
+    if (!skipMavenSigning && !signingKey.isNullOrBlank()) {
         signing {
             useInMemoryPgpKeys(
                 findProperty("signing.keyId") as String?,

@@ -1,5 +1,6 @@
 # JReleaser: upload staged Maven layout to Sonatype Central Publisher Portal.
-# Stage first: ./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository (with signing.*)
+# Stage first: ./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository
+# (CI: skip Gradle signing — ORG_GRADLE_PROJECT_skipMavenSigning=true — then JReleaser signs via JRELEASER_GPG_*.)
 # Then:      ./gradlew jreleaserDeploy
 # Or one shot: ./gradlew jreleaserDeploy  (root wires deploy → staging publish)
 
@@ -11,10 +12,12 @@ project:
       groupId: com.groundspaceteam
       artifactId: closed-test-sdk
 
-# Artifacts are already signed by Gradle (maven-publish + signing).
+# Sign staged files here: Sonatype validates .asc for every published file (Gradle often skips *.module).
 signing:
   pgp:
-    active: NEVER
+    active: ALWAYS
+    armored: true
+    verify: false
 
 deploy:
   maven:
@@ -26,7 +29,7 @@ deploy:
         # PomChecker uses stock Maven and fails on <packaging>aar</packaging> (“Unknown packaging: aar”).
         # The POM is still valid for Central; Sonatype accepts AAR coordinates.
         verifyPom: false
-        sign: false
+        sign: true
         namespace: com.groundspaceteam
         stagingRepositories:
           - closed-test-sdk/build/staging-deploy

@@ -199,7 +199,7 @@ env:
 
 - **`.github/workflows/sdk.yml`** — сборка на push/PR (без секретов).
 - **`.github/workflows/verify-gpg.yml`** — **только** ручной запуск (**Actions → Verify GPG signing → Run workflow**). Читает **`SIGNING_KEY`** и **`SIGNING_PASSWORD`**, выполняет `publishToMavenLocal` и проверяет наличие **`.asc`**.
-- **`.github/workflows/publish-maven-central.yml`** — **только** ручной запуск (**Publish to Maven Central (Portal)**). Секреты: **`MAVEN_CENTRAL_USERNAME`**, **`MAVEN_CENTRAL_PASSWORD`** (User Token с [central.sonatype.com](https://central.sonatype.com/)), плюс **`SIGNING_KEY`** / **`SIGNING_PASSWORD`**. Выполняет **`gradle jreleaserDeploy`**: сначала `:closed-test-sdk:publishReleasePublicationToStagingRepository` (подпись Gradle), затем загрузку в Portal через JReleaser (конфиг **`jreleaser.yml`** в корне репозитория). Опционально **Dry run** в UI workflow.
+- **`.github/workflows/publish-maven-central.yml`** — **только** ручной запуск (**Publish to Maven Central (Portal)**). Секреты: **`MAVEN_CENTRAL_USERNAME`**, **`MAVEN_CENTRAL_PASSWORD`** (User Token), **`SIGNING_KEY`** / **`SIGNING_PASSWORD`** (те же, что для Verify GPG: в workflow они передаются как **`JRELEASER_GPG_SECRET_KEY`** / **`JRELEASER_GPG_PASSPHRASE`**). Staging публикуется **без** Gradle-подписи (**`skipMavenSigning=true`**), затем **JReleaser** подписывает все файлы и грузит в Portal (**`jreleaser.yml`**). Опционально **Dry run** в UI workflow.
 
 Отдельный workflow для GPG нужен потому, что job с условием `if: github.event_name == 'workflow_dispatch'` **не выполнится** при **Re-run** прогона, который изначально был от **push** (событие остаётся `push`). Для проверки подписи всегда запускайте именно workflow **Verify GPG signing**.
 
@@ -232,18 +232,28 @@ mavenCentralPassword=...
 
 | Переменная / свойство | Назначение |
 |------------------------|------------|
-| `signing.key` / `signing.password` | Как в §4 — Gradle подписывает артефакты перед загрузкой. |
+| `JRELEASER_GPG_SECRET_KEY` / `JRELEASER_GPG_PASSPHRASE` | Armored приватный ключ и passphrase — **JReleaser** создаёт **`.asc`** для каждого файла перед загрузкой (так Sonatype принимает набор вместе с checksum-артефактами). |
+| `ORG_GRADLE_PROJECT_skipMavenSigning=true` | Не подписывать публикацию Gradle’ом при staging (иначе возможны лишние/неполные `.asc`, например для **`.module`**). |
 | `JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME` | Username из **User Token** Central Portal. |
 | `JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD` | Password (секрет) из того же токена. |
 
-Команды:
+Для **`publishToMavenLocal`** (проверка GPG в §4) по-прежнему используйте **`signing.key`** / **`signing.password`** и **не** задавайте **`skipMavenSigning`**.
+
+Команды (как в CI):
 
 ```bash
+export ORG_GRADLE_PROJECT_skipMavenSigning=true
+export JRELEASER_GPG_SECRET_KEY="-----BEGIN PGP PRIVATE KEY BLOCK----- ..."
+export JRELEASER_GPG_PASSPHRASE="..."
+export JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME="..."
+export JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD="..."
 # одной цепочкой: staging publish → jreleaserDeploy (зависимость настроена в корневом build.gradle.kts)
 ./gradlew jreleaserDeploy
 ```
 
 Либо явно по шагам: `./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository`, затем `./gradlew jreleaserDeploy`.
+
+В **`closed-test-sdk`** для публикации **`release`** отключён **Gradle Module Metadata** (`publishGradleModuleMetadata = false`), чтобы в Central не уходил лишний **`*.module`**.
 
 Проверка конфигурации без загрузки: `./gradlew jreleaserConfig` или `./gradlew jreleaserDeploy --dryrun`.
 
