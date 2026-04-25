@@ -1,6 +1,6 @@
 # JReleaser: upload staged Maven layout to Sonatype Central Publisher Portal.
 # Stage first: ./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository
-# (CI: skip Gradle signing — ORG_GRADLE_PROJECT_skipMavenSigning=true — then JReleaser signs via JRELEASER_GPG_*.)
+# (CI: skip Gradle signing — ORG_GRADLE_PROJECT_skipMavenSigning=true — then JReleaser signs via gpg CLI, see workflow.)
 # Then:      ./gradlew jreleaserDeploy
 # Or one shot: ./gradlew jreleaserDeploy  (root wires deploy → staging publish)
 
@@ -12,12 +12,20 @@ project:
       groupId: com.groundspaceteam
       artifactId: closed-test-sdk
 
-# Sign staged files here: Sonatype validates .asc for every published file (Gradle often skips *.module).
+# Sign staged files via gpg CLI (COMMAND): avoids BouncyCastle inside the Gradle JVM (NoSuchMethodError vs bundled BC).
 signing:
   pgp:
     active: ALWAYS
     armored: true
     verify: false
+    mode: COMMAND
+    command:
+      executable: gpg
+      args:
+        - "--batch"
+        - "--no-tty"
+        - "--pinentry-mode"
+        - "loopback"
 
 deploy:
   maven:

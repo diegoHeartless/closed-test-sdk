@@ -14,6 +14,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Isolated keyring for gpg (JReleaser signing.mode=COMMAND); avoids JVM BouncyCastle used with MEMORY keys.
+      GNUPGHOME: ${{ runner.temp }}/jreleaser-gpg
     steps:
       - uses: actions/checkout@v4
 
@@ -26,11 +29,21 @@ jobs:
         with:
           gradle-version: "8.10.2"
 
+      - name: Import GPG key into GNUPGHOME
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          set -e
+          mkdir -p "$GNUPGHOME"
+          chmod 700 "$GNUPGHOME"
+          printf '%s\n' "allow-loopback-pinentry" >>"$GNUPGHOME/gpg-agent.conf"
+          printf '%s\n' "$SIGNING_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format=long
+
       - name: Stage, sign, deploy (JReleaser → Central Portal)
         env:
-          # Unsigned staging; JReleaser signs every file for Sonatype (incl. checksum .asc if required).
+          # Unsigned staging; JReleaser signs via gpg (see jreleaser.yml signing.pgp.mode=COMMAND).
           ORG_GRADLE_PROJECT_skipMavenSigning: "true"
-          JRELEASER_GPG_SECRET_KEY: ${{ secrets.SIGNING_KEY }}
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.SIGNING_PASSWORD }}
           JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

@@ -199,7 +199,7 @@ env:
 
 - **`.github/workflows/sdk.yml`** — сборка на push/PR (без секретов).
 - **`.github/workflows/verify-gpg.yml`** — **только** ручной запуск (**Actions → Verify GPG signing → Run workflow**). Читает **`SIGNING_KEY`** и **`SIGNING_PASSWORD`**, выполняет `publishToMavenLocal` и проверяет наличие **`.asc`**.
-- **`.github/workflows/publish-maven-central.yml`** — **только** ручной запуск (**Publish to Maven Central (Portal)**). Секреты: **`MAVEN_CENTRAL_USERNAME`**, **`MAVEN_CENTRAL_PASSWORD`** (User Token), **`SIGNING_KEY`** / **`SIGNING_PASSWORD`** (те же, что для Verify GPG: в workflow они передаются как **`JRELEASER_GPG_SECRET_KEY`** / **`JRELEASER_GPG_PASSPHRASE`**). Staging публикуется **без** Gradle-подписи (**`skipMavenSigning=true`**), затем **JReleaser** подписывает все файлы и грузит в Portal (**`jreleaser.yml`**). Опционально **Dry run** в UI workflow.
+- **`.github/workflows/publish-maven-central.yml`** — **только** ручной запуск (**Publish to Maven Central (Portal)**). Секреты: **`MAVEN_CENTRAL_USERNAME`**, **`MAVEN_CENTRAL_PASSWORD`** (User Token), **`SIGNING_KEY`** / **`SIGNING_PASSWORD`**. Ключ импортируется в **`GNUPGHOME`** и подпись идёт через **`gpg`** (**`jreleaser.yml` → `signing.pgp.mode: COMMAND`**), без in-memory ключа в JVM Gradle (иначе возможен **NoSuchMethodError** в BouncyCastle). Staging без Gradle-подписи (**`skipMavenSigning=true`**), затем **JReleaser** подписывает и грузит в Portal. Опционально **Dry run** в UI workflow.
 
 Отдельный workflow для GPG нужен потому, что job с условием `if: github.event_name == 'workflow_dispatch'` **не выполнится** при **Re-run** прогона, который изначально был от **push** (событие остаётся `push`). Для проверки подписи всегда запускайте именно workflow **Verify GPG signing**.
 
@@ -232,22 +232,22 @@ mavenCentralPassword=...
 
 | Переменная / свойство | Назначение |
 |------------------------|------------|
-| `JRELEASER_GPG_SECRET_KEY` / `JRELEASER_GPG_PASSPHRASE` | Armored приватный ключ и passphrase — **JReleaser** создаёт **`.asc`** для каждого файла перед загрузкой (так Sonatype принимает набор вместе с checksum-артефактами). |
-| `ORG_GRADLE_PROJECT_skipMavenSigning=true` | Не подписывать публикацию Gradle’ом при staging (иначе возможны лишние/неполные `.asc`, например для **`.module`**). |
+| Установленный **`gpg`** и ключ в keyring | В **`jreleaser.yml`** задано **`signing.pgp.mode: COMMAND`**: подписи создаёт **`gpg`**, не BouncyCastle внутри Gradle. |
+| `JRELEASER_GPG_PASSPHRASE` | Passphrase для ключа при вызове **`gpg`** (как в CI). |
+| `ORG_GRADLE_PROJECT_skipMavenSigning=true` | Не подписывать публикацию Gradle’ом при staging. |
 | `JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME` | Username из **User Token** Central Portal. |
 | `JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD` | Password (секрет) из того же токена. |
 
 Для **`publishToMavenLocal`** (проверка GPG в §4) по-прежнему используйте **`signing.key`** / **`signing.password`** и **не** задавайте **`skipMavenSigning`**.
 
-Команды (как в CI):
+**Локально** (аналог CI): импортируйте ключ в свой keyring (или отдельный **`GNUPGHOME`**), затем:
 
 ```bash
 export ORG_GRADLE_PROJECT_skipMavenSigning=true
-export JRELEASER_GPG_SECRET_KEY="-----BEGIN PGP PRIVATE KEY BLOCK----- ..."
 export JRELEASER_GPG_PASSPHRASE="..."
 export JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME="..."
 export JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD="..."
-# одной цепочкой: staging publish → jreleaserDeploy (зависимость настроена в корневом build.gradle.kts)
+# при отдельном keyring: export GNUPGHOME=/path/to/empty-dir && gpg --import private.asc
 ./gradlew jreleaserDeploy
 ```
 
