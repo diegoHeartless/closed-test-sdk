@@ -253,7 +253,7 @@ export JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD="..."
 
 Либо явно по шагам: `./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository`, затем `./gradlew jreleaserDeploy`.
 
-В **`closed-test-sdk`** для публикации **`release`** отключён **Gradle Module Metadata** (`publishGradleModuleMetadata = false`), чтобы в Central не уходил лишний **`*.module`**.
+В **`closed-test-sdk`** отключены задачи **`GenerateModuleMetadata`** (нет **`*.module`** в репозитории), чтобы в Central не уходил лишний неподписываемый Gradle metadata рядом с AAR.
 
 Проверка конфигурации без загрузки: `./gradlew jreleaserConfig` или `./gradlew jreleaserDeploy --dryrun`.
 

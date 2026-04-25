@@ -63,8 +63,6 @@ afterEvaluate {
                 groupId = "com.groundspaceteam"
                 artifactId = "closed-test-sdk"
                 version = libs.versions.closedTestSdk.get()
-                // Central + JReleaser: avoid extra unsigned `*.module` (Gradle metadata); consumers use POM + AAR.
-                publishGradleModuleMetadata.set(false)
                 from(components["release"])
                 pom {
                     name.set("closed-test-sdk")
@@ -114,6 +112,11 @@ afterEvaluate {
             )
             sign(publishing.publications["release"])
         }
+    }
+
+    // No `publishGradleModuleMetadata` on this AGP+MavenPublication combo; disable the task instead (Central / JReleaser).
+    tasks.withType<org.gradle.api.publish.tasks.GenerateModuleMetadata>().configureEach {
+        enabled = false
     }
 }
 
