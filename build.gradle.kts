@@ -9,6 +9,31 @@ plugins {
     alias(libs.plugins.jreleaser)
 }
 
+// JReleaser PGP + Gradle/AGP: avoid old bcprov on the classpath (NoSuchMethodError on BigIntegers.writeUnsignedByteArray).
+subprojects {
+    configurations.configureEach {
+        resolutionStrategy {
+            force(
+                "org.bouncycastle:bcprov-jdk18on:1.78.1",
+                "org.bouncycastle:bcutil-jdk18on:1.78.1",
+                "org.bouncycastle:bcpg-jdk18on:1.78.1",
+                "org.bouncycastle:bcpkix-jdk18on:1.78.1",
+            )
+        }
+    }
+}
+
+configurations.configureEach {
+    resolutionStrategy {
+        force(
+            "org.bouncycastle:bcprov-jdk18on:1.78.1",
+            "org.bouncycastle:bcutil-jdk18on:1.78.1",
+            "org.bouncycastle:bcpg-jdk18on:1.78.1",
+            "org.bouncycastle:bcpkix-jdk18on:1.78.1",
+        )
+    }
+}
+
 group = "com.groundspaceteam"
 version = libs.versions.closedTestSdk.get()
 
