@@ -14,11 +14,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      # Isolated keyring for gpg (JReleaser signing.mode=COMMAND); avoids JVM BouncyCastle used with MEMORY keys.
-      GNUPGHOME: ${{ runner.temp }}/jreleaser-gpg
     steps:
       - uses: actions/checkout@v4
+
+      # `runner` context is not allowed in `jobs.*.env`; use shell env RUNNER_TEMP + GITHUB_ENV.
+      - name: Set GNUPGHOME for gpg / JReleaser (COMMAND mode)
+        run: echo "GNUPGHOME=${RUNNER_TEMP}/jreleaser-gpg" >> "$GITHUB_ENV"
 
       - uses: actions/setup-java@v4
         with:
