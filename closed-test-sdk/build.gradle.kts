@@ -123,6 +123,7 @@ afterEvaluate {
 dependencies {
     coreLibraryDesugaring(libs.desugar)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.startup.runtime)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.room.runtime)

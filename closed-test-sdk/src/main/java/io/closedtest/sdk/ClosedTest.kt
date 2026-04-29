@@ -8,14 +8,15 @@ import io.closedtest.sdk.internal.SdkController
 /**
  * Entry point for the closed-test proof SDK.
  *
- * Call [initialize] once from [Application.onCreate] (or another early entry) with an **application** [Context].
+ * By default SDK may auto-initialize via AndroidX Startup when
+ * `io.closedtest.sdk.publishable_key` is provided in app `AndroidManifest.xml`.
+ *
+ * Call [initialize] manually only if you need explicit control; repeated calls are ignored.
  */
 object ClosedTest {
 
     /**
      * Initializes networking, persistence, lifecycle observers, and optional automatic sessions.
-     *
-     * @throws IllegalStateException if called more than once.
      */
     @JvmStatic
     fun initialize(context: Context, publishableKey: String, options: ClosedTestOptions) {

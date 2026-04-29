@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../AndroidServer"
+		},
+		{
+			"path": "../ProofFlowSite"
 		}
 	],
 	"settings": {}

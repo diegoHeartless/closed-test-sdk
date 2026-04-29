@@ -13,9 +13,9 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        // Replace with your ingest host and publishable key from the dashboard.
-        buildConfigField("String", "INGEST_BASE_URL", "\"https://ingest.example.com\"")
+        // Replace with your publishable key from the dashboard.
         buildConfigField("String", "PUBLISHABLE_KEY", "\"pk_replace_me\"")
+        manifestPlaceholders["closedTestPublishableKey"] = "pk_replace_me"
     }
 
     buildTypes {

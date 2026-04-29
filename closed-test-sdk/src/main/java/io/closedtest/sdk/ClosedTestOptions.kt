@@ -5,7 +5,8 @@ import okhttp3.OkHttpClient
 /**
  * Configuration for [ClosedTest.initialize].
  *
- * @property baseUrl Ingest origin **without** trailing slash, e.g. `https://ingest.example.com` (paths `/v1/...` are appended by the SDK).
+ * Ingest backend URL is fixed inside SDK and is not exposed in public API.
+ *
  * @property heartbeatIntervalMs Interval between `heartbeat` events while the app is in the foreground.
  * @property backgroundSessionEndDelayMs After the app moves to the background, wait this long before emitting `session_end` unless the user returns.
  * @property collectInDebuggableBuilds When `false`, the SDK becomes a no-op if the host app is debuggable (`ApplicationInfo.FLAG_DEBUGGABLE`).
@@ -16,7 +17,6 @@ import okhttp3.OkHttpClient
  * @property uploadBackoffMaxMs Cap for exponential backoff between upload retries.
  */
 data class ClosedTestOptions(
-    val baseUrl: String,
     val heartbeatIntervalMs: Long = 20_000L,
     val backgroundSessionEndDelayMs: Long = 60_000L,
     val collectInDebuggableBuilds: Boolean = true,

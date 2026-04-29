@@ -140,10 +140,26 @@ MVP на бэкенде (рядом с SDK в общей архитектуре)
 
 ---
 
+## Состояние реализации (аудит SDK в репо, не бэкенд)
+
+| Фаза / пункт ROADMAP | Статус |
+|----------------------|--------|
+| **Фаза 0** — `spec.md`, PII, коды ошибок | **Есть** `spec.md`; **есть** `openapi/ingest.yaml` (ingest + схемы batch/init). |
+| **Фаза 1** — init, lifecycle-сессии, heartbeat, screen, flush, очередь, ретраи, deep link / `bindTester` | **Есть** в модуле `closed-test-sdk`; auto-init через AndroidX Startup; sample в `examples:sample`. |
+| **Фаза 2** — backoff, лимиты очереди/батча, consumer ProGuard, SemVer, CHANGELOG | **Есть** (`UploadBackoff`, `ClosedTestOptions`, `consumer-rules.pro`, каталог версий, `CHANGELOG.md`). |
+| **Фаза 3** — `trackInteraction` / `trackEvent` + санитайз props | **Есть** (`PropsSanitizer`, публичный API в `ClosedTest`). |
+| **Фаза 4** — Play Integrity и т.д. | **Не делалось** (по плану позже). |
+| **Бэкенд ingest** — `POST /v1/init`, refresh, events, валидация сессий | **Хост:** `https://api.groundspaceteam.com/` (**AndroidServer** развёрнут). **Логика ingest по контракту SDK — пока не реализована**; см. `AndroidServer/docs/closed-test-ingest-status.md`. |
+| **Публикация Maven** (`closed-test-sdk`) | **Сделано** (см. `docs/PUBLISHING_MAVEN_CENTRAL.md`). |
+
+Чтобы end-to-end заработало: реализовать ingest на **AndroidServer** (или отдельном сервисе) строго по `spec.md` / `openapi/ingest.yaml`; клиент SDK уже указывает на тот же base URL.
+
 ## Следующие шаги в репозитории
 
-1. Добавить **`SPEC.md`**: точный список событий, поля, примеры payload, коды ошибок ingest.
-2. Создать **Gradle-модуль** `closed-test-sdk` (или выбранное имя) + `examples/sample`.
-3. Согласовать с бэкендом **URL ingest**, лимиты и ответ `init` с токеном сессии.
+1. ~~Gradle-модуль + sample~~ — **готово**.
+2. ~~OpenAPI ingest~~ — **готово** (`openapi/ingest.yaml`), держать в синхроне с `spec.md` и Kotlin DTO.
+3. По мере эволюции Base/advanced init (пакет + build без ключа) — обновить `spec.md`, OpenAPI и `IngestApi` / `SdkController`.
+4. Опционально: UI-модуль или гайд по одному вызову `trackScreen` из Compose/Fragment (Фаза 3 docs).
+5. **AndroidServer:** реализовать ingest на `https://api.groundspaceteam.com/` по OpenAPI (статус — `../AndroidServer/docs/closed-test-ingest-status.md`).
 
 Исходный чат по ссылке при желании можно хранить для истории: [ChatGPT share](https://chatgpt.com/share/69e7e410-0198-832e-8d71-1463234495cb) (текст диалога лучше дублировать в репо или в issue, если ссылка снова не откроется).

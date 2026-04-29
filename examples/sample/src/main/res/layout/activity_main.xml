@@ -20,6 +20,20 @@
         android:text="@string/btn_screen" />
 
     <Button
+        android:id="@+id/btnInteraction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/btn_interaction" />
+
+    <Button
+        android:id="@+id/btnEvent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/btn_event" />
+
+    <Button
         android:id="@+id/btnFlush"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -17,6 +17,12 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnScreen).setOnClickListener {
             ClosedTest.trackScreen("demo_home")
         }
+        findViewById<Button>(R.id.btnInteraction).setOnClickListener {
+            ClosedTest.trackInteraction("demo_tap")
+        }
+        findViewById<Button>(R.id.btnEvent).setOnClickListener {
+            ClosedTest.trackEvent("demo_step", mapOf("step" to "1"))
+        }
         findViewById<Button>(R.id.btnFlush).setOnClickListener {
             ClosedTest.flush()
         }

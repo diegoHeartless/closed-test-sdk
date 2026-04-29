@@ -5,4 +5,6 @@
     <string name="btn_flush">Flush queue</string>
     <string name="btn_deep_link">Open bind deep link</string>
     <string name="btn_bind">Bind tester manually</string>
+    <string name="btn_interaction">Track interaction</string>
+    <string name="btn_event">Track event (with props)</string>
 </resources>

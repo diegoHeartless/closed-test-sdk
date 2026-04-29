@@ -37,6 +37,7 @@ import okhttp3.OkHttpClient
 
 internal object SdkController {
 
+    private const val INGEST_BASE_URL = "https://api.groundspaceteam.com"
     private const val FLUSH_DEBOUNCE_MS = 1_500L
     private const val MAX_UPLOAD_RETRIES_SAME_BATCH = 12
     private const val PREFS_RUNTIME = "io.closedtest.sdk.runtime"
@@ -120,7 +121,7 @@ internal object SdkController {
 
     fun initialize(context: Context, publishableKey: String, options: ClosedTestOptions) {
         synchronized(lock) {
-            check(!initialized) { "ClosedTest.initialize already called" }
+            if (initialized) return
             initialized = true
             val app = context.applicationContext
             appCtx = app
@@ -143,7 +144,7 @@ internal object SdkController {
             tokenStore = TokenStore(app)
             bindingStore = BindingStore(app)
             val client = options.okHttpClient ?: OkHttpClient()
-            ingest = IngestApi(options.baseUrl, client)
+            ingest = IngestApi(INGEST_BASE_URL, client)
             heartbeatMs = options.heartbeatIntervalMs
 
             val dispatcher = Executors.newSingleThreadExecutor { r ->

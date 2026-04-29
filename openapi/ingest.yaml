@@ -1,0 +1,219 @@
+openapi: 3.0.3
+info:
+  title: Closed Test Ingest API
+  description: |
+    HTTP contract for Android closed-test-sdk: handshake, token refresh, batched events.
+    Human-readable semantics and PII rules: `spec.md` in repo root.
+  version: 0.1.0
+
+servers:
+  - url: https://api.groundspaceteam.com
+    description: Production API host (AndroidServer); ingest routes may not be implemented yet — see AndroidServer/docs/closed-test-ingest-status.md.
+
+tags:
+  - name: ingest
+    description: SDK-facing endpoints
+
+paths:
+  /v1/init:
+    post:
+      tags: [ingest]
+      summary: Handshake; issue session tokens
+      operationId: postInit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitRequest'
+      responses:
+        '200':
+          description: Tokens issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+
+  /v1/session/refresh:
+    post:
+      tags: [ingest]
+      summary: Rotate session token using refresh token
+      operationId: postSessionRefresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: New token pair
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitResponse'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+
+  /v1/events:
+    post:
+      tags: [ingest]
+      summary: Upload batch of events
+      operationId: postEvents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: X-Request-Id
+          in: header
+          required: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventsBatchRequest'
+      responses:
+        '200':
+          description: Batch accepted
+        '401':
+          description: Invalid or expired session token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    InitRequest:
+      type: object
+      required:
+        - publishable_key
+        - device_id
+        - sdk_version
+        - app_version
+        - os
+        - os_version
+      properties:
+        publishable_key:
+          type: string
+        device_id:
+          type: string
+          format: uuid
+        sdk_version:
+          type: string
+        app_version:
+          type: string
+        os:
+          type: string
+          enum: [android]
+        os_version:
+          type: string
+        test_session_id:
+          type: string
+          nullable: true
+        tester_id:
+          type: string
+          nullable: true
+
+    InitResponse:
+      type: object
+      required:
+        - session_token
+        - refresh_token
+        - session_expires_at
+        - refresh_expires_at
+      properties:
+        session_token:
+          type: string
+        refresh_token:
+          type: string
+        session_expires_at:
+          type: string
+          description: RFC 3339 timestamp
+        refresh_expires_at:
+          type: string
+          description: RFC 3339 timestamp
+        server_heartbeat_interval_ms:
+          type: integer
+          format: int64
+          nullable: true
+        ingest_enabled:
+          type: boolean
+          nullable: true
+          description: When false, SDK should stop sending events until policy changes
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+
+    EventsBatchRequest:
+      type: object
+      required:
+        - batch_id
+        - sent_at
+        - events
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+        sent_at:
+          type: string
+          description: RFC 3339 when batch was built (client clock)
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Event'
+
+    Event:
+      type: object
+      description: >
+        One event object as produced by the SDK. Required fields vary by `type`;
+        see `spec.md` §4–6. Common required keys include type, occurred_at, monotonic_ms,
+        device_id, sdk_version, app_version, os, os_version, event_id.
+      additionalProperties: true
+
+    ErrorBody:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: e.g. invalid_request, unauthorized, invalid_publishable_key, rate_limited
+            message:
+              type: string
+            request_id:
+              type: string
+              nullable: true
