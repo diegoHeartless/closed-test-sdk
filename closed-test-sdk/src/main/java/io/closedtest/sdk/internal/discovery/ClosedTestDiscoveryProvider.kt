@@ -3,6 +3,7 @@ package io.closedtest.sdk.internal.discovery
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
@@ -21,7 +22,7 @@ internal class ClosedTestDiscoveryProvider : ContentProvider() {
 
     private var discoveryEnabled: Boolean = true
 
-    override fun attachInfo(context: android.content.Context, info: android.content.ProviderInfo?) {
+    override fun attachInfo(context: android.content.Context, info: ProviderInfo?) {
         super.attachInfo(context, info)
         discoveryEnabled = readDiscoveryEnabledFlag(context)
     }
