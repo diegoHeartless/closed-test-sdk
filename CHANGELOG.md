@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.1] — 2026-05-07
+
+### Added
+
+- **Discovery `ContentProvider`** (authority `<applicationId>.closedtest.discovery`) for ProofFlow: read-only `query` with columns `sdk_version` and `host_package`; access limited to known ProofFlow package UIDs. Optional `meta-data` `io.closedtest.sdk.discovery_enabled` to disable.
+- **`ClosedTest.DISCOVERY_AUTHORITY_SUFFIX`** and **`ClosedTest.discoveryAuthority(applicationId)`** for integrators and host apps.
+
 ## [0.2.0] — 2026-04-22
 
 ### Added

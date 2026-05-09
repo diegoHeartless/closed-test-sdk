@@ -291,7 +291,7 @@ export JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD="..."
 // settings.gradle.kts — репозиторий по умолчанию mavenCentral() достаточно
 
 dependencies {
-    implementation("com.groundspaceteam:closed-test-sdk:0.2.0") // версия из libs.versions.toml
+    implementation("com.groundspaceteam:closed-test-sdk:0.2.1") // версия из libs.versions.toml
 }
 
 // Импорты API (пакет внутри AAR не менялся):
