@@ -5,6 +5,11 @@
 
     <application>
         <provider
+            android:name="io.closedtest.sdk.internal.discovery.ClosedTestDiscoveryProvider"
+            android:authorities="${applicationId}.closedtest.discovery"
+            android:exported="true" />
+
+        <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"

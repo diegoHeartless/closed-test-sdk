@@ -80,7 +80,11 @@ email, mail, phone, telephone, msisdn, password, passwd, secret, token, access_t
 
 **Data safety:** в документации SDK указать: время сессии, имена экранов и именованные события — для подтверждения участия в closed testing.
 
-## 9. Следующие шаги
+## 9. Discovery-маркер (Android, вне ingest HTTP)
+
+Host-приложение (**anyapp**) мержит `ContentProvider` с authority `<applicationId>` + суффикс `.closedtest.discovery` (константа `ClosedTest.DISCOVERY_AUTHORITY_SUFFIX`). По запросу возвращаются только технические поля: `sdk_version`, `host_package`. Доступ на чтение — процессам из whitelist пакетов ProofFlow (см. реализацию SDK и **`ProofFlow/docs/TEST_DISCOVERY.md`** §3.4). Не путать с `POST /v1/init` и телеметрией.
+
+## 10. Следующие шаги
 
 Согласовать с бэкендом базовый URL, лимиты батча и RPS, отдельный ли нужен эндпоинт `bind` или достаточно полей в `init`/событиях.
 

@@ -16,6 +16,19 @@ import io.closedtest.sdk.internal.SdkController
 object ClosedTest {
 
     /**
+     * Суффикс authority для ContentProvider discovery в host-приложении.
+     * Полный authority: `BuildConfig.APPLICATION_ID` host-приложения + это значение.
+     *
+     * ProofFlow проверяет наличие провайдера через `PackageManager.resolveContentProvider`
+     * или `ContentResolver` для URI с этим authority (см. `docs/SDK_USAGE.md`).
+     */
+    const val DISCOVERY_AUTHORITY_SUFFIX: String = ".closedtest.discovery"
+
+    /** Authority строки вида `content://com.example.anyapp.closedtest.discovery/…` для указанного `applicationId`. */
+    @JvmStatic
+    fun discoveryAuthority(applicationId: String): String = "$applicationId$DISCOVERY_AUTHORITY_SUFFIX"
+
+    /**
      * Initializes networking, persistence, lifecycle observers, and optional automatic sessions.
      */
     @JvmStatic

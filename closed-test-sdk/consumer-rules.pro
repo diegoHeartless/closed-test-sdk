@@ -2,6 +2,9 @@
 -keep class io.closedtest.sdk.ClosedTest { *; }
 -keep class io.closedtest.sdk.ClosedTestOptions { *; }
 
+# --- Manifest-registered discovery ContentProvider ---
+-keep class io.closedtest.sdk.internal.discovery.ClosedTestDiscoveryProvider { *; }
+
 # --- OkHttp (runtime platform / optional TLS stacks) ---
 -dontwarn okhttp3.internal.platform.**
 -dontwarn org.bouncycastle.jsse.**

@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../ProofFlowSite"
+		},
+		{
+			"path": "../ServerMonitoring"
 		}
 	],
 	"settings": {}

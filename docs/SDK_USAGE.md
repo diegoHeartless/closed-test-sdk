@@ -110,6 +110,25 @@ ClosedTest.handleDeepLink(intent?.data)
 ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 ```
 
+## Опционально: подсказка открыть ProofFlow (план)
+
+Если на устройстве установлено приложение **ProofFlow**, SDK может (после явного включения издателем) показать **внутри anyapp** ненавязчивый баннер с предложением открыть ProofFlow для режима тестера. Контракт проверки пакета, UX и deep link — **`ProofFlow/docs/STATS_AND_DEEPLINKS_DRAFT.md`** §3.1.1.
+
+По умолчанию фича **выключена**. Рекомендуется не использовать системный overlay поверх чужих приложений.
+
+## Маркер discovery для ProofFlow (ContentProvider)
+
+Библиотека мержит экспортированный `ContentProvider`, чтобы приложение **ProofFlow** могло убедиться, что в указанном пакете установлена сборка **с этим SDK**, без сканирования всех приложений на устройстве.
+
+| Поле | Значение |
+|------|----------|
+| **Authority** | `<ваш applicationId>` + `ClosedTest.DISCOVERY_AUTHORITY_SUFFIX` (= суффикс `.closedtest.discovery`). Пример: `com.example.game.closedtest.discovery`. В коде: `ClosedTest.discoveryAuthority(BuildConfig.APPLICATION_ID)` или ту же строку из Gradle `applicationId`. |
+| **Проверка из ProofFlow** | `PackageManager.resolveContentProvider("$packageName.closedtest.discovery", 0)` или запрос `ContentResolver.query` к `content://$authority/` (на Android 11+ может понадобиться элемент `<queries>` на известные пакеты anyapp — см. **`ProofFlow/docs/TEST_DISCOVERY.md`**). |
+| **Курсор `query`** | Колонки: `sdk_version` (SemVer SDK из сборки), `host_package` (`applicationId` anyapp). Для вызывающих процессов **не** из whitelist пакетов ProofFlow возвращается **пустой** курсор. |
+| **Отключить маркер** | В `<application>`: `<meta-data android:name="io.closedtest.sdk.discovery_enabled" android:value="false" />` — ответы останутся пустыми. |
+
+Секреты, PII и `publishable_key` в этот провайдер **не** попадают.
+
 ## Что SDK делает автоматически
 
 - lifecycle-события: `session_start`, `session_end`, `app_foreground`, `app_background`
