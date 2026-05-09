@@ -6,8 +6,8 @@ SDK отправляет события в ingest **Ground Space Team** (`https:
 ## Продуктовый контекст: anyapp и ProofFlow
 
 - **anyapp** — это **ваше** приложение, куда вы встраиваете SDK. Тестеры ставят именно его. Это не ProofFlow.
-- **ProofFlow** — приложение **организатора**: завести тест, указать пакет anyapp, получить **`publishable_key`**, смотреть метрики. Тестерам ProofFlow **не обязателен**: телеметрия идёт из anyapp по ключу. Дополнительная детализация по тестеру возможна, если продукт использует привязку тестера (см. раздел «Привязка тестера»).
-- **`publishable_key`** — выдаётся в **ProofFlow** (или связанном с ним веб-кабинете / API) после регистрации приложения; вставляется в манифест или в `ClosedTest.initialize`.
+- **ProofFlow** — приложение **организатора**: завести тест, указать пакет anyapp, (опционально) получить **`publishable_key`** для Advanced-политики, смотреть метрики. Тестерам ProofFlow **не обязателен**: телеметрия идёт из anyapp. Дополнительная детализация по тестеру возможна, если продукт использует привязку тестера (см. раздел «Привязка тестера»).
+- **Base vs Advanced:** **Base** — без ключа, сервер сопоставляет ingest с allowlist по кортежу `package` + `buildType` + `versionName` + `versionCode` (см. `spec.md` / OpenAPI). **Advanced** — **`publishable_key`** выдаётся в **ProofFlow** (или веб-кабинете / API) и вставляется в манифест или `ClosedTest.initialize` для управляемой политики на сервере.
 
 ## Подключение
 
@@ -25,6 +25,7 @@ SDK автоматически инициализируется через Andro
 
 ```xml
 <application ...>
+    <!-- Опционально: для Advanced ingest. Без этого блока работает Base (если сервер знает ваш кортеж сборки). -->
     <meta-data
         android:name="io.closedtest.sdk.publishable_key"
         android:value="pk_live_..." />
@@ -41,7 +42,7 @@ SDK автоматически инициализируется через Andro
 
 Важно:
 - URL backend **не нужно** передавать: он зашит внутри SDK (`https://api.groundspaceteam.com`).
-- `publishableKey` передаётся через `AndroidManifest` (или вручную в `ClosedTest.initialize`).
+- **`publishable_key`** в манифесте опционален: при отсутствии или пустом значении handshake идёт в **Base**; иначе — **Advanced** с ключом (через манифест или `ClosedTest.initialize`).
 - Ручной `initialize(...)` остаётся доступным, повторный вызов безопасно игнорируется.
 
 ### Ключ без хардкода в git (рекомендуется)
@@ -128,6 +129,18 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 | **Отключить маркер** | В `<application>`: `<meta-data android:name="io.closedtest.sdk.discovery_enabled" android:value="false" />` — ответы останутся пустыми. |
 
 Секреты, PII и `publishable_key` в этот провайдер **не** попадают.
+
+### Неявный Intent (дополнительно)
+
+Для клиентов вроде **ProofFlow**, которым нужен список кандидатов без заранее известных пакетов, SDK мержит невидимую activity с фильтром:
+
+| Поле | Значение |
+|------|----------|
+| **Action** | `ClosedTest.DISCOVERY_INTENT_ACTION` (= `io.closedtest.sdk.DISCOVERY`). |
+| **Проверка** | `PackageManager.queryIntentActivities(Intent(action).addCategory(Intent.CATEGORY_DEFAULT), …)` возвращает пакеты, где установлено приложение с этим SDK. |
+| **Подделка** | Любое приложение может повесить такой же фильтр без SDK — для доверия используйте по-прежнему проверку **ContentProvider** по authority для конкретного пакета. |
+
+На Android 11+ у клиента обычно нужен `<queries><intent><action android:name="io.closedtest.sdk.DISCOVERY"/></intent></queries>`.
 
 ## Что SDK делает автоматически
 

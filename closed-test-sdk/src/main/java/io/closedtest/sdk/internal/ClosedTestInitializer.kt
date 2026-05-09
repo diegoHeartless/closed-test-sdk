@@ -10,7 +10,7 @@ import io.closedtest.sdk.ClosedTestOptions
  * Auto-init entrypoint via AndroidX Startup.
  *
  * Host app may configure:
- * - <meta-data android:name="io.closedtest.sdk.publishable_key" android:value="pk_..." />
+ * - <meta-data android:name="io.closedtest.sdk.publishable_key" android:value="pk_..." /> (optional; Advanced ingest)
  * - <meta-data android:name="io.closedtest.sdk.auto_init_enabled" android:value="true|false" />
  */
 internal class ClosedTestInitializer : Initializer<Unit> {
@@ -23,9 +23,8 @@ internal class ClosedTestInitializer : Initializer<Unit> {
         if (!autoInitEnabled) return
 
         val publishableKey = meta?.getString(META_PUBLISHABLE_KEY)?.trim().orEmpty()
-        if (publishableKey.isEmpty()) return
 
-        // initialize() is idempotent on SDK side; safe with manual fallback in host app.
+        // initialize() is idempotent on SDK side; empty key uses Base ingest (package/build/version tuple).
         ClosedTest.initialize(app, publishableKey, ClosedTestOptions())
     }
 

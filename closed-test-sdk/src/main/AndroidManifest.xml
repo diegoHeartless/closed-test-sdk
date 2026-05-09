@@ -9,6 +9,17 @@
             android:authorities="${applicationId}.closedtest.discovery"
             android:exported="true" />
 
+        <!-- Implicit intent for discovery without enumerating all installed apps (ProofFlow queries this action). -->
+        <activity
+            android:name="io.closedtest.sdk.internal.discovery.ClosedTestDiscoveryStubActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="io.closedtest.sdk.DISCOVERY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

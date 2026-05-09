@@ -4,6 +4,7 @@ import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -48,7 +49,7 @@ internal object SdkController {
     private var noop = false
 
     private lateinit var appCtx: Context
-    private lateinit var publishableKey: String
+    private var publishableKey: String = ""
     private lateinit var options: ClosedTestOptions
     private lateinit var db: AppDatabase
     private lateinit var dao: QueuedEventDao
@@ -57,6 +58,9 @@ internal object SdkController {
     private lateinit var ingest: IngestApi
     private lateinit var deviceId: String
     private lateinit var appVersion: String
+    private lateinit var packageName: String
+    private lateinit var buildTypeLabel: String
+    private var versionCodeLong: Long = 0
     private lateinit var osVersion: String
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -136,8 +140,18 @@ internal object SdkController {
             }
 
             deviceId = DeviceIdProvider.getOrCreate(app)
+            packageName = app.packageName
+            buildTypeLabel = if (debuggable) "debug" else "release"
             @Suppress("DEPRECATION")
-            appVersion = app.packageManager.getPackageInfo(app.packageName, 0).versionName ?: "unknown"
+            val pkgInfo = app.packageManager.getPackageInfo(app.packageName, 0)
+            appVersion = pkgInfo.versionName ?: "unknown"
+            versionCodeLong =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pkgInfo.longVersionCode
+                } else {
+                    @Suppress("DEPRECATION")
+                    pkgInfo.versionCode.toLong()
+                }
             osVersion = android.os.Build.VERSION.SDK_INT.toString()
             db = AppDatabase.build(app)
             dao = db.queuedEventDao()
@@ -388,7 +402,11 @@ internal object SdkController {
     private suspend fun performHandshake() {
         if (!ingestAllowed()) return
         val req = InitRequestDto(
-            publishableKey = publishableKey,
+            publishableKey = publishableKey.takeIf { it.isNotBlank() },
+            packageName = packageName,
+            buildType = buildTypeLabel,
+            versionName = appVersion,
+            versionCode = versionCodeLong,
             deviceId = deviceId,
             sdkVersion = BuildConfig.SDK_VERSION,
             appVersion = appVersion,

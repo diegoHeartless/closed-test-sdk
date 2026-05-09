@@ -19,7 +19,7 @@
 
 | Метод и путь | Назначение |
 |--------------|------------|
-| `POST /v1/init` | `publishable_key`, `device_id`, версии; ответ — токены и сроки жизни |
+| `POST /v1/init` | Handshake: **Advanced** — `publishable_key` + общие поля; **Base** — без ключа, но с `package_name`, `build_type`, `version_name`, `version_code` (сервер матчит allowlist); ответ — токены и сроки жизни |
 | `POST /v1/session/refresh` | Обмен `refresh_token` на новую пару токенов |
 | `POST /v1/events` | Батч событий, `Authorization: Bearer <session_token>` |
 
@@ -59,7 +59,8 @@
 |------|-----|--------|
 | 400 | `invalid_request` | Формат / обязательные поля |
 | 401 | `unauthorized` | Неверный/истёкший session token |
-| 401 | `invalid_publishable_key` | Ключ в `init` |
+| 401 | `invalid_publishable_key` | Неизвестный ключ (режим Advanced) |
+| 401 | `invalid_base_identity` | Неизвестный Base-кортеж (пакет/сборка/версии) |
 | 403 | `forbidden` | Операция запрещена для ключа/теста |
 | 409 | `duplicate` | Дедуп по `event_id` / `batch_id` |
 | 422 | `invalid_event_payload` | Семантика или запрещённые `props` |

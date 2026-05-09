@@ -8,8 +8,9 @@ import io.closedtest.sdk.internal.SdkController
 /**
  * Entry point for the closed-test proof SDK.
  *
- * By default SDK may auto-initialize via AndroidX Startup when
- * `io.closedtest.sdk.publishable_key` is provided in app `AndroidManifest.xml`.
+ * By default SDK auto-initializes via AndroidX Startup when `io.closedtest.sdk.auto_init_enabled`
+ * is true (default). **`publishable_key`** is optional: omit or leave empty for **Base** ingest
+ * (identity by package + build type + version); set for **Advanced** ingest with server-side key policy.
  *
  * Call [initialize] manually only if you need explicit control; repeated calls are ignored.
  */
@@ -23,6 +24,12 @@ object ClosedTest {
      * или `ContentResolver` для URI с этим authority (см. `docs/SDK_USAGE.md`).
      */
     const val DISCOVERY_AUTHORITY_SUFFIX: String = ".closedtest.discovery"
+
+    /**
+     * Неявный Intent для обнаружения приложений с SDK на устройстве (`queryIntentActivities`).
+     * Должен совпадать с `<action>` в манифесте библиотеки и с запросом `<queries><intent>` у клиентов (ProofFlow).
+     */
+    const val DISCOVERY_INTENT_ACTION: String = "io.closedtest.sdk.DISCOVERY"
 
     /** Authority строки вида `content://com.example.anyapp.closedtest.discovery/…` для указанного `applicationId`. */
     @JvmStatic

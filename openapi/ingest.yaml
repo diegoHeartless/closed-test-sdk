@@ -4,7 +4,7 @@ info:
   description: |
     HTTP contract for Android closed-test-sdk: handshake, token refresh, batched events.
     Human-readable semantics and PII rules: `spec.md` in repo root.
-  version: 0.1.0
+  version: 0.2.0
 
 servers:
   - url: https://api.groundspaceteam.com
@@ -111,16 +111,37 @@ components:
   schemas:
     InitRequest:
       type: object
+      description: |
+        **Advanced:** set `publishable_key` (≥8 chars) — server resolves `SHA-256` of the raw key.
+        **Base:** omit `publishable_key` (or empty) and send `package_name`, `build_type`, `version_name`, `version_code`
+        (must match a row seeded via `CLOSED_TEST_INGEST_BASE_IDENTITIES` on the server; hash is
+        `SHA-256("base:" + package + "|" + build_type + "|" + version_name + "|" + version_code)`).
+        If both advanced and base fields are sent, advanced wins.
       required:
-        - publishable_key
         - device_id
         - sdk_version
         - app_version
         - os
         - os_version
+        - package_name
+        - build_type
+        - version_name
+        - version_code
       properties:
         publishable_key:
           type: string
+          description: Optional when using Base ingest; required for Advanced key policy.
+        package_name:
+          type: string
+          description: Host applicationId (e.g. from Context.getPackageName()).
+        build_type:
+          type: string
+          description: SDK sends `debug` or `release` from ApplicationInfo.FLAG_DEBUGGABLE.
+        version_name:
+          type: string
+        version_code:
+          type: integer
+          format: int64
         device_id:
           type: string
           format: uuid
@@ -128,6 +149,7 @@ components:
           type: string
         app_version:
           type: string
+          description: Typically same as version_name; kept for backward compatibility.
         os:
           type: string
           enum: [android]

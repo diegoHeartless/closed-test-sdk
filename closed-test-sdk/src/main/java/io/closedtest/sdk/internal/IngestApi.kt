@@ -77,7 +77,12 @@ internal class IngestHttpException(val code: Int, val body: String?) : Exception
 
 @Serializable
 internal data class InitRequestDto(
-    @SerialName("publishable_key") val publishableKey: String,
+    /** Advanced ingest; omitted when using Base-only handshake. */
+    @SerialName("publishable_key") val publishableKey: String? = null,
+    @SerialName("package_name") val packageName: String,
+    @SerialName("build_type") val buildType: String,
+    @SerialName("version_name") val versionName: String,
+    @SerialName("version_code") val versionCode: Long,
     @SerialName("device_id") val deviceId: String,
     @SerialName("sdk_version") val sdkVersion: String,
     @SerialName("app_version") val appVersion: String,
