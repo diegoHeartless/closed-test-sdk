@@ -105,4 +105,6 @@ internal data class InitResponseDto(
     @SerialName("refresh_expires_at") val refreshExpiresAt: String,
     @SerialName("server_heartbeat_interval_ms") val serverHeartbeatIntervalMs: Long? = null,
     @SerialName("ingest_enabled") val ingestEnabled: Boolean? = null,
+    /** ProofFlow test id for PF-TEST deep link — см. `STATS_AND_DEEPLINKS_DRAFT.md` §3.1.1. */
+    @SerialName("proofflow_test_id") val proofflowTestId: String? = null,
 )

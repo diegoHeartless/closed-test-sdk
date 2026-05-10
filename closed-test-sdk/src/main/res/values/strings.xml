@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="closed_test_sdk_proof_flow_hint_title">Open ProofFlow?</string>
+    <string name="closed_test_sdk_proof_flow_hint_message">This app is linked to a closed test on the server. You can open ProofFlow as a tester to join and track tests.</string>
+    <string name="closed_test_sdk_proof_flow_hint_open">Open ProofFlow</string>
+    <string name="closed_test_sdk_proof_flow_hint_later">Later</string>
+    <string name="closed_test_sdk_proof_flow_hint_never">Don\'t ask again</string>
+</resources>

@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.5] — 2026-05-11
+
+### Changed
+
+- **`ClosedTestOptions.proofFlowHintEnabled`** defaults to **true** (was false). Startup meta-data `io.closedtest.sdk.proofflow_hint_enabled` defaults to enabled when omitted; set **`false`** to opt out.
+
+## [0.2.4] — 2026-05-11
+
+### Added
+
+- **ProofFlow hint after init:** optional dialog when `POST /v1/init` returns `proofflow_test_id` and `ClosedTestOptions.proofFlowHintEnabled` is true. Opens PF-TEST `proofflow://test/{id}`; limits via `proofFlowHintMaxShows`, `proofFlowHintCooldownMs`; meta-data `io.closedtest.sdk.proofflow_hint_enabled` for Startup auto-init. See `docs/SDK_USAGE.md`, `ProofFlow/docs/STATS_AND_DEEPLINKS_DRAFT.md` §3.1.1.
+
 ## [0.2.3] — 2026-05-11
 
 ### Added

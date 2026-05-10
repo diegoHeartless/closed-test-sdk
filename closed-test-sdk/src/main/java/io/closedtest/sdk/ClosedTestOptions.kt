@@ -15,6 +15,10 @@ import okhttp3.OkHttpClient
  * @property eventsBatchSize Max events per `/v1/events` request (clamped to 1..100).
  * @property uploadBackoffInitialMs First backoff delay after a retryable upload failure.
  * @property uploadBackoffMaxMs Cap for exponential backoff between upload retries.
+ * @property proofFlowHintEnabled When true and the server returns `proofflow_test_id` on `POST /v1/init`, may show a dialog to open ProofFlow (PF-TEST). Default **true**; set **false** to opt out.
+ * @property proofFlowPackageNames Installed package names to treat as ProofFlow when deciding whether to offer the hint (default Play + debug suffix).
+ * @property proofFlowHintMaxShows Max times the hint dialog may be shown per install.
+ * @property proofFlowHintCooldownMs Minimum time between hint prompts after “Later”.
  */
 data class ClosedTestOptions(
     val heartbeatIntervalMs: Long = 20_000L,
@@ -25,4 +29,12 @@ data class ClosedTestOptions(
     val eventsBatchSize: Int = 100,
     val uploadBackoffInitialMs: Long = 1_000L,
     val uploadBackoffMaxMs: Long = 60_000L,
+    val proofFlowHintEnabled: Boolean = true,
+    val proofFlowPackageNames: List<String> =
+        listOf(
+            "com.ground.proofflow",
+            "com.ground.proofflow.debug",
+        ),
+    val proofFlowHintMaxShows: Int = 3,
+    val proofFlowHintCooldownMs: Long = 7L * 24 * 60 * 60 * 1000,
 )

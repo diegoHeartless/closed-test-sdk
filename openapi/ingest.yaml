@@ -188,6 +188,10 @@ components:
           type: boolean
           nullable: true
           description: When false, SDK should stop sending events until policy changes
+        proofflow_test_id:
+          type: string
+          nullable: true
+          description: Optional ProofFlow test id when ingest is tied to a ProofFlow test (PF-TEST deep link target).
 
     RefreshRequest:
       type: object

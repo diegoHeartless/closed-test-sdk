@@ -11,6 +11,7 @@ import android.os.SystemClock
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import android.app.Application
 import io.closedtest.sdk.BuildConfig
 import io.closedtest.sdk.ClosedTestOptions
 import io.closedtest.sdk.internal.db.AppDatabase
@@ -428,6 +429,12 @@ internal object SdkController {
             .putBoolean(KEY_INGEST_ENABLED, enabled)
             .apply()
         dto.serverHeartbeatIntervalMs?.let { heartbeatMs = it }
+        val app = appCtx.applicationContext
+        if (app is Application) {
+            mainHandler.post {
+                ProofFlowHintPresenter.scheduleAfterInit(app, options, dto.proofflowTestId)
+            }
+        }
     }
 
     private fun ingestAllowed(): Boolean {

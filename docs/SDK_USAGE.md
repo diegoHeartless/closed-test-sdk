@@ -111,11 +111,18 @@ ClosedTest.handleDeepLink(intent?.data)
 ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 ```
 
-## Опционально: подсказка открыть ProofFlow (план)
+## Опционально: подсказка открыть ProofFlow
 
-Если на устройстве установлено приложение **ProofFlow**, SDK может (после явного включения издателем) показать **внутри anyapp** ненавязчивый баннер с предложением открыть ProofFlow для режима тестера. Контракт проверки пакета, UX и deep link — **`ProofFlow/docs/STATS_AND_DEEPLINKS_DRAFT.md`** §3.1.1.
+Если сервер возвращает **`proofflow_test_id`** в ответе **`POST /v1/init`** (связка теста ProofFlow с ingest) и подсказка **не отключена** издателем, SDK после успешного handshake может показать **диалог** на текущей Activity с кнопкой открыть ProofFlow по ссылке **`proofflow://test/{proofflow_test_id}`** (PF-TEST).
 
-По умолчанию фича **выключена**. Рекомендуется не использовать системный overlay поверх чужих приложений.
+- По умолчанию фича **включена** (`ClosedTestOptions.proofFlowHintEnabled = true`).
+- Выключение программно: `ClosedTest.initialize(context, publishableKey, ClosedTestOptions(proofFlowHintEnabled = false))`.
+- При автозапуске через AndroidX Startup: чтобы отключить, в `<application>` добавить  
+  `<meta-data android:name="io.closedtest.sdk.proofflow_hint_enabled" android:value="false" />`.
+- Установка ProofFlow проверяется по пакетам из `ClosedTestOptions.proofFlowPackageNames` (по умолчанию `com.ground.proofflow` и `.debug`). При необходимости передайте свой список.
+- Лимиты: не более **`proofFlowHintMaxShows`** показов за установку (по умолчанию 3), интервал **`proofFlowHintCooldownMs`** между показами после «Later» (по умолчанию 7 дней). Кнопка «Don't ask again» отключает подсказки.
+
+Документ продукта: **`ProofFlow/docs/STATS_AND_DEEPLINKS_DRAFT.md`** §3.1.1.
 
 ## Маркер discovery для ProofFlow (ContentProvider)
 
