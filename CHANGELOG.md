@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.3] — 2026-05-11
+
+### Added
+
+- **Implicit Intent discovery for ProofFlow:** `ClosedTest.DISCOVERY_INTENT_ACTION` (`io.closedtest.sdk.DISCOVERY`), exported invisible `ClosedTestDiscoveryStubActivity` with matching `intent-filter`. Consumers use `PackageManager.queryIntentActivities`; Intent-only matches are spoofable — ContentProvider marker remains the strict check per package (`docs/SDK_USAGE.md`).
+
 ## [0.2.2] — 2026-05-09
 
 ### Added
