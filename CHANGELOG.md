@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.7] — 2026-05-14
+
+### Fixed
+
+- **Room `onOpen` PRAGMA:** `PRAGMA mmap_size = 0` is applied via **`query(SimpleSQLiteQuery(…)).close()`** instead of `execSQL`, fixing **`SQLiteException: Queries can be performed using … query or rawQuery methods only`** on some devices (e.g. Samsung SM-A525F / Android 12).
+
 ## [0.2.6] — 2026-05-13
 
 ### Changed

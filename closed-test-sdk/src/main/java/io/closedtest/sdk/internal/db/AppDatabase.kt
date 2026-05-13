@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
@@ -21,9 +22,9 @@ abstract class AppDatabase : RoomDatabase() {
         private val sqlitePragmasCallback =
             object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {
-                    // Avoid mmap + WAL-heavy paths that trigger denied F2FS ioctls on some OEM SELinux
-                    // (e.g. audit ioctlcmd=0xf522 on app_data_file) while keeping a single-file journal.
-                    db.execSQL("PRAGMA mmap_size = 0")
+                    // Avoid mmap on some OEMs (SELinux ioctl on DB). PRAGMA returns rows on many SQLite builds —
+                    // must use query + close, not execSQL (Samsung/Android 12: "Queries can be performed … rawQuery only").
+                    db.query(SimpleSQLiteQuery("PRAGMA mmap_size = 0")).close()
                 }
             }
 
