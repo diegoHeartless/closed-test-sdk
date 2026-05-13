@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.6] — 2026-05-13
+
+### Changed
+
+- **Room / SQLite:** internal queue DB uses **`JournalMode.TRUNCATE`** (no WAL `-wal`/`-shm`) and **`PRAGMA mmap_size = 0`** on open to reduce OEM SELinux **`ioctl`** denials on `closed_test_sdk.db` (e.g. Samsung `ioctlcmd=0xf522` in auditd) without changing the public API.
+
 ## [0.2.5] — 2026-05-11
 
 ### Changed
