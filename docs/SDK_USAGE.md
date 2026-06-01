@@ -1,13 +1,16 @@
 # Руководство по использованию `closed-test-sdk`
 
-SDK отправляет события в ingest **Ground Space Team** (`https://api.groundspaceteam.com`). Кабинет и приложение организатора — **ProofFlow** (отдельно от вашего приложения).  
+> **English (canonical for GitHub / Maven):** see the repository **[README.md](../README.md)**.  
+> **Web guide (aligned with README):** [dozenflow.com/docs/sdk](https://dozenflow.com/docs/sdk).
+
+SDK отправляет события в ingest **Ground Space Team** (`https://api.groundspaceteam.com`). Кабинет и приложение организатора — **Dozenflow** (бренд; пакет `com.ground.proofflow`, в коде иногда ProofFlow).  
 Публичный API: `io.closedtest.sdk`.
 
-## Продуктовый контекст: anyapp и ProofFlow
+## Продуктовый контекст: anyapp и Dozenflow
 
-- **anyapp** — это **ваше** приложение, куда вы встраиваете SDK. Тестеры ставят именно его. Это не ProofFlow.
-- **ProofFlow** — приложение **организатора**: завести тест, указать пакет anyapp, (опционально) получить **`publishable_key`** для Advanced-политики, смотреть метрики. Тестерам ProofFlow **не обязателен**: телеметрия идёт из anyapp. Дополнительная детализация по тестеру возможна, если продукт использует привязку тестера (см. раздел «Привязка тестера»).
-- **Base vs Advanced:** **Base** — без ключа, сервер сопоставляет ingest с allowlist по кортежу `package` + `buildType` + `versionName` + `versionCode` (см. `spec.md` / OpenAPI). **Advanced** — **`publishable_key`** выдаётся в **ProofFlow** (или веб-кабинете / API) и вставляется в манифест или `ClosedTest.initialize` для управляемой политики на сервере.
+- **anyapp** — это **ваше** приложение, куда вы встраиваете SDK. Тестеры ставят именно его. Это не Dozenflow.
+- **Dozenflow** — приложение и сайт **организатора**: завести тест, указать пакет anyapp, (опционально) получить **`publishable_key`** для Advanced-политики, смотреть метрики. Тестерам Dozenflow **не обязателен**: телеметрия идёт из anyapp. Дополнительная детализация по тестеру возможна, если продукт использует привязку тестера (см. раздел «Привязка тестера»).
+- **Base vs Advanced:** **Base** — без ключа, сервер сопоставляет ingest с allowlist по кортежу `package` + `buildType` + `versionName` + `versionCode` (см. `spec.md` / OpenAPI). **Advanced** — **`publishable_key`** выдаётся в **Dozenflow** (или [dozenflow.com/dashboard](https://dozenflow.com/dashboard)) и вставляется в манифест или `ClosedTest.initialize` для управляемой политики на сервере.
 
 ## Подключение
 
