@@ -39,7 +39,7 @@
 
 ## 5. Обязательные поля каждого события
 
-`type`, `occurred_at` (RFC 3339), `monotonic_ms`, `device_id` (UUID в хранилище приложения), `sdk_version`, `app_version`, `os` (`android`), `os_version`.
+`type`, `occurred_at` (RFC 3339), `monotonic_ms`, `device_id` (UUID в хранилище приложения; с SDK ≥ 0.2.8 после переустановки стабилен на том же устройстве — детерминированный UUID из `Settings.Secure.ANDROID_ID`, сырой ANDROID_ID в события не попадает), `sdk_version`, `app_version`, `os` (`android`), `os_version`.
 
 Опционально: `event_id` (дедуп), `session_id`, `test_session_id`, `tester_id` (после binding).
 

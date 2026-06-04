@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.8] — 2026-05-31
+
+### Fixed
+
+- **`device_id` after reinstall:** first install after app data is cleared derives a **stable** UUID (v3) from `Settings.Secure.ANDROID_ID` instead of a new random UUID each time, so ingest **roster** is not inflated by reinstalls on the same physical device. Existing ids already stored in prefs are unchanged until cleared.
+
 ## [0.2.7] — 2026-05-14
 
 ### Fixed
