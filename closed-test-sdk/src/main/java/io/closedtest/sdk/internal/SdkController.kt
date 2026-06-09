@@ -17,6 +17,8 @@ import io.closedtest.sdk.ClosedTestOptions
 import io.closedtest.sdk.internal.db.AppDatabase
 import io.closedtest.sdk.internal.db.QueuedEventDao
 import io.closedtest.sdk.internal.db.QueuedEventEntity
+import io.closedtest.sdk.internal.reminder.DailyLaunchTracker
+import io.closedtest.sdk.internal.reminder.LocalDailyReminderScheduler
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.Executors
@@ -169,6 +171,7 @@ internal object SdkController {
 
             ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
             app.registerComponentCallbacks(memoryCallbacks)
+            LocalDailyReminderScheduler.apply(app, options)
 
             sdkScope?.launch {
                 performHandshake()
@@ -253,7 +256,9 @@ internal object SdkController {
     }
 
     private fun onAppForeground() {
-        if (!initialized || noop || !ingestAllowed()) return
+        if (!initialized || noop) return
+        DailyLaunchTracker.recordLaunch(appCtx)
+        if (!ingestAllowed()) return
         mainHandler.removeCallbacks(sessionEndRunnable)
         sdkScope?.launch {
             val monotonic = SystemClock.elapsedRealtime()

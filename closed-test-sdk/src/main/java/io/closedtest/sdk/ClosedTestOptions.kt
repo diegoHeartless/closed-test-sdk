@@ -19,6 +19,9 @@ import okhttp3.OkHttpClient
  * @property proofFlowPackageNames Installed package names to treat as ProofFlow when deciding whether to offer the hint (default Play + debug suffix).
  * @property proofFlowHintMaxShows Max times the hint dialog may be shown per install.
  * @property proofFlowHintCooldownMs Minimum time between hint prompts after “Later”.
+ * @property dailyReminderEnabled When true, schedules a **local** daily notification if the app was not opened today (device local time). Not a remote FCM push.
+ * @property dailyReminderHourLocal Hour of day (0–23) in the device timezone for the reminder. Default **15** (3 PM).
+ * @property dailyReminderMinuteLocal Minute (0–59) for the reminder. Default **0**.
  */
 data class ClosedTestOptions(
     val heartbeatIntervalMs: Long = 20_000L,
@@ -37,4 +40,7 @@ data class ClosedTestOptions(
         ),
     val proofFlowHintMaxShows: Int = 3,
     val proofFlowHintCooldownMs: Long = 7L * 24 * 60 * 60 * 1000,
+    val dailyReminderEnabled: Boolean = true,
+    val dailyReminderHourLocal: Int = 15,
+    val dailyReminderMinuteLocal: Int = 0,
 )

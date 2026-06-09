@@ -5,4 +5,8 @@
     <string name="closed_test_sdk_proof_flow_hint_open">Open ProofFlow</string>
     <string name="closed_test_sdk_proof_flow_hint_later">Later</string>
     <string name="closed_test_sdk_proof_flow_hint_never">Don\'t ask again</string>
+    <string name="closed_test_sdk_daily_reminder_title">Time to test</string>
+    <string name="closed_test_sdk_daily_reminder_body">Open the app today to keep your closed test on track.</string>
+    <string name="closed_test_sdk_daily_reminder_channel_name">Test reminders</string>
+    <string name="closed_test_sdk_daily_reminder_channel_desc">Local daily reminder when you have not opened the app yet today.</string>
 </resources>

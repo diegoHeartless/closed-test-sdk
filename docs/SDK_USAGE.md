@@ -96,6 +96,40 @@ android {
 - `eventsBatchSize`
 - `uploadBackoffInitialMs`
 - `uploadBackoffMaxMs`
+- `dailyReminderEnabled` — локальное напоминание, если приложение **ещё не открывали сегодня** (по локальному времени устройства). По умолчанию **true**.
+- `dailyReminderHourLocal` / `dailyReminderMinuteLocal` — время напоминания (по умолчанию **15:00**).
+
+## Локальное напоминание (не FCM)
+
+SDK может показать **локальное** уведомление в заданное время, если пользователь **ещё не выводил приложение на передний план** в текущий календарный день. Это не push из Dozenflow и не требует Firebase в anyapp.
+
+```kotlin
+ClosedTest.initialize(
+    context,
+    publishableKey,
+    ClosedTestOptions(
+        dailyReminderEnabled = true,
+        dailyReminderHourLocal = 15,
+        dailyReminderMinuteLocal = 0,
+    ),
+)
+```
+
+Отключить:
+
+```kotlin
+ClosedTestOptions(dailyReminderEnabled = false)
+```
+
+Через манифест (авто-init):
+
+```xml
+<meta-data android:name="io.closedtest.sdk.daily_reminder_enabled" android:value="false" />
+<meta-data android:name="io.closedtest.sdk.daily_reminder_hour" android:value="18" />
+<meta-data android:name="io.closedtest.sdk.daily_reminder_minute" android:value="30" />
+```
+
+**Android 13+:** добавьте `POST_NOTIFICATIONS` в манифест приложения и запросите разрешение у пользователя — без него уведомление не покажется. Тап по уведомлению открывает launcher activity anyapp.
 
 ## Ручные события
 

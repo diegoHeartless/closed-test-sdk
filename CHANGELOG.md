@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [Unreleased]
+
+### Added
+
+- **Local daily test reminder:** optional notification at a fixed local time (default **15:00**) when the app has **not** been opened yet today. Configure via `ClosedTestOptions` (`dailyReminderEnabled`, `dailyReminderHourLocal`, `dailyReminderMinuteLocal`) or manifest meta-data (`io.closedtest.sdk.daily_reminder_*`). Requires `POST_NOTIFICATIONS` on Android 13+ (host app should request permission). Not a remote FCM push.
+
 ## [0.2.8] — 2026-05-31
 
 ### Fixed

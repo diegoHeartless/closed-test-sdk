@@ -20,6 +20,7 @@ Embed this library in **anyapp** — the APK you distribute to closed or interna
 - Queues events locally (**Room**) and uploads them in **batches** with retry/backoff.
 - Performs **`POST /v1/init`** handshake (Base or Advanced) and refreshes tokens on **401**.
 - Optionally links a tester to a Dozenflow test (deep link / bind) and can show a **“open Dozenflow”** hint when the server returns a test id.
+- Can show a **local daily reminder** at a fixed time (default **15:00** device local) if the app was **not opened yet today** — not a remote FCM push.
 - Exposes a **discovery marker** so the Dozenflow organizer app can verify your package has this SDK installed.
 
 The SDK is a **developer tool** for legitimate closed-test monitoring. It does **not** find testers, guarantee Play production approval, or bypass platform policies.
@@ -72,6 +73,9 @@ The SDK **auto-starts** via [AndroidX App Startup](https://developer.android.com
 | `io.closedtest.sdk.publishable_key` | Non-empty → **Advanced**. Missing/empty → **Base** (if server accepts keyless for your `package_name`). |
 | `io.closedtest.sdk.auto_init_enabled` | Set `false` to disable Startup and call `ClosedTest.initialize` yourself. |
 | `io.closedtest.sdk.proofflow_hint_enabled` | Set `false` to disable the optional Dozenflow app hint dialog. |
+| `io.closedtest.sdk.daily_reminder_enabled` | Set `false` to disable the local daily test reminder (default **enabled**, 15:00 local). |
+| `io.closedtest.sdk.daily_reminder_hour` | Hour `0`–`23` for the reminder (default `15`). |
+| `io.closedtest.sdk.daily_reminder_minute` | Minute `0`–`59` (default `0`). |
 | `io.closedtest.sdk.discovery_enabled` | Set `false` to disable the discovery ContentProvider. |
 
 Duplicate `ClosedTest.initialize(...)` calls with the same key are ignored.
@@ -138,6 +142,43 @@ A working sample with `manifestPlaceholders` lives in [`examples/sample`](exampl
 | `proofFlowHintMaxShows` | Max dialog shows per install (default `3`) |
 | `proofFlowHintCooldownMs` | Cooldown after “Later” (default 7 days) |
 | `proofFlowPackageNames` | Packages checked for the installed Dozenflow app |
+| `dailyReminderEnabled` | Local daily notification when the app was not opened today (default `true`) |
+| `dailyReminderHourLocal` | Reminder hour in device timezone (default `15` = 3 PM) |
+| `dailyReminderMinuteLocal` | Reminder minute (default `0`) |
+
+---
+
+## Local daily test reminder (not FCM)
+
+The SDK can schedule a **local** notification on the device — **no Firebase in anyapp**, **no** Dozenflow organizer push. At the configured time (default **15:00** local), if the user has **not** brought your app to the foreground **today**, a neutral reminder is shown. Tapping it opens your launcher activity.
+
+```kotlin
+ClosedTest.initialize(
+    context = applicationContext,
+    publishableKey = publishableKey,
+    options = ClosedTestOptions(
+        dailyReminderEnabled = true,
+        dailyReminderHourLocal = 15,
+        dailyReminderMinuteLocal = 0,
+    ),
+)
+```
+
+Disable:
+
+```kotlin
+ClosedTestOptions(dailyReminderEnabled = false)
+```
+
+Or via manifest (auto-init):
+
+```xml
+<meta-data android:name="io.closedtest.sdk.daily_reminder_enabled" android:value="false" />
+<meta-data android:name="io.closedtest.sdk.daily_reminder_hour" android:value="18" />
+<meta-data android:name="io.closedtest.sdk.daily_reminder_minute" android:value="30" />
+```
+
+**Android 13+:** declare `POST_NOTIFICATIONS` in your app manifest and **request runtime permission** — otherwise the notification is skipped. This is separate from **Remind participants** in the Dozenflow organizer app (FCM to the Dozenflow APK).
 
 ---
 
@@ -219,6 +260,7 @@ Details: [`spec.md`](spec.md) §5, [`CHANGELOG.md`](CHANGELOG.md) **0.2.8**.
 - Foreground **heartbeat**
 - **Room** queue + batched upload
 - Token **refresh** on HTTP **401**
+- Optional **local daily reminder** at configured local time (if enabled and app not opened today)
 
 ---
 
@@ -241,6 +283,7 @@ Details: [`spec.md`](spec.md) §5, [`CHANGELOG.md`](CHANGELOG.md) **0.2.8**.
 | 403 on init (Base) | Keyless ingest off for package; missing or wrong `package_name` / build fields in handshake body |
 | Roster too high after reinstalls | SDK before **0.2.8** assigned a new random `device_id` per reinstall; upgrade anyapp. Historical duplicate ids stay until a new campaign epoch |
 | No organizer-app dialog | `proofflow_test_id` not returned; hint disabled; max shows reached |
+| No daily local reminder | `daily_reminder_enabled=false`; app already opened today; notifications disabled; `POST_NOTIFICATIONS` denied on Android 13+ |
 | Organizer cannot detect SDK | Wrong package; `discovery_enabled=false`; missing `<queries>` on Android 11+ |
 
 ---
