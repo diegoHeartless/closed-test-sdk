@@ -30,8 +30,8 @@ internal class ClosedTestInitializer : Initializer<Unit> {
 
         val proofFlowHintEnabled = meta?.getBoolean(META_PROOFFLOW_HINT_ENABLED, true) ?: true
         val dailyReminderEnabled = meta?.getBoolean(META_DAILY_REMINDER_ENABLED, true) ?: true
-        val dailyReminderHour = meta?.getInt(META_DAILY_REMINDER_HOUR, 15).coerceIn(0, 23)
-        val dailyReminderMinute = meta?.getInt(META_DAILY_REMINDER_MINUTE, 0).coerceIn(0, 59)
+        val dailyReminderHour = (meta?.getInt(META_DAILY_REMINDER_HOUR, 15) ?: 15).coerceIn(0, 23)
+        val dailyReminderMinute = (meta?.getInt(META_DAILY_REMINDER_MINUTE, 0) ?: 0).coerceIn(0, 59)
 
         // initialize() is idempotent on SDK side; empty key uses Base ingest (package/build/version tuple).
         ClosedTest.initialize(
