@@ -48,7 +48,7 @@ The SDK is a **developer tool** for legitimate closed-test monitoring. It does *
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("com.groundspaceteam:closed-test-sdk:0.2.8")
+    implementation("com.groundspaceteam:closed-test-sdk:0.2.9")
 }
 ```
 

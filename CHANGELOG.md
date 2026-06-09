@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
-## [Unreleased]
+## [0.2.9] — 2026-06-01
 
 ### Added
 
