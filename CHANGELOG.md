@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.11] — 2026-06-01
+
+### Added
+
+- **Tracked Play Install Referrer:** reads Play Install Referrer once per install (`com.android.installreferrer:installreferrer`) and sends optional **`install_referrer`** on `POST /v1/init` (e.g. `df_{token}` from organizer DozenFlow links). Failures do not block handshake. See `spec.md` §8.1, ProofFlow `docs/TRACKED_PLAY_INVITE.md`.
+
 ## [0.2.10] — 2026-06-01
 
 ### Added

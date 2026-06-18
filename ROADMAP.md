@@ -23,6 +23,7 @@
 | **Фаза 3** — `trackInteraction` / `trackEvent`, санитайз props | **Готово** |
 | **Discovery** — `ContentProvider` для ProofFlow (`DISCOVERY_AUTHORITY_SUFFIX`) | **Готово** (см. CHANGELOG 0.2.1+) |
 | **Base handshake** — опциональный `publishable_key`, поля `package_name`, `build_type`, `version_name`, `version_code` | **Готово** (SDK ≥ 0.2.2) |
+| **Tracked Play Install Referrer** — `install_referrer` на `POST /v1/init` | **Готово** (SDK ≥ 0.2.11) |
 | **AndroidServer ingest** — `POST /v1/init`, refresh, events, SQLite | **Частично** — MVP с env-ключами и env-Base-кортежами; нет флага keyless в БД, нет выдачи ключей из ProofFlow API |
 | **Фаза 4** — Play Integrity, жёсткая анти-спуф без ключа | **Не делалось** |
 

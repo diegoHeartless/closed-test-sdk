@@ -84,7 +84,7 @@ email, mail, phone, telephone, msisdn, password, passwd, secret, token, access_t
 
 Опциональное поле **`install_referrer`** — строка из Play Install Referrer API после установки по ссылке с `referrer=df_{token}` (см. ProofFlow `TRACKED_PLAY_INVITE.md`).
 
-- SDK читает referrer **один раз** за установку (кэш локально), передаёт на первом успешном `init`.
+- SDK **≥ 0.2.11** читает referrer **один раз** за установку (кэш локально), передаёт на первом успешном `init`.
 - Ошибка чтения referrer **не блокирует** handshake.
 - Сервер матчит `df_{token}` → `device_id` к последнему несопоставленному клику по invite (идемпотентно на тест).
 

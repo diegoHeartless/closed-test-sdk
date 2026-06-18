@@ -20,6 +20,8 @@ dependencies {
 }
 ```
 
+Актуальная версия — в [`gradle/libs.versions.toml`](../gradle/libs.versions.toml) (`closedTestSdk`, сейчас **0.2.11**).
+
 ## Инициализация (авто-init, по умолчанию)
 
 SDK автоматически инициализируется через AndroidX Startup.
@@ -171,6 +173,14 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 - Username не попадает в `track_event.props` — только в dedicated endpoint. Организатор видит контакт в ProofFlow (roster / stats).
 
 Документ продукта: **`ProofFlow/docs/UNIFIED_API_DRAFT.md`** §5.1.
+
+## Tracked Play Install Referrer (SDK ≥ 0.2.11)
+
+Если тестер установил anyapp по **отслеживаемой** ссылке организатора (DozenFlow → Play с `referrer=df_{token}`), SDK один раз читает **Play Install Referrer** и передаёт строку в **`install_referrer`** на `POST /v1/init`. Ошибка чтения не блокирует handshake. Сервер сопоставляет установку с кликом по invite.
+
+- Контракт: `spec.md` §8.1, `openapi/ingest.yaml` (`InitRequest.install_referrer`).
+- Продукт: **`ProofFlow/docs/TRACKED_PLAY_INVITE.md`** (фаза 3).
+- Настройка в anyapp **не требуется** — достаточно обновить SDK до **0.2.11+**.
 
 ## Маркер discovery для ProofFlow (ContentProvider)
 

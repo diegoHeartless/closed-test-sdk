@@ -22,6 +22,7 @@ Embed this library in **anyapp** — the APK you distribute to closed or interna
 - Optionally links a tester to a Dozenflow test (deep link / bind) and can show a **“open Dozenflow”** hint when the server returns a test id.
 - Can show a **local daily reminder** at a fixed time (default **15:00** device local) if the app was **not opened yet today** — not a remote FCM push.
 - Exposes a **discovery marker** so the Dozenflow organizer app can verify your package has this SDK installed.
+- On installs from **tracked Play links**, sends **`install_referrer`** on `init` so the server can match the tester device to an organizer invite (SDK **≥ 0.2.11**).
 
 The SDK is a **developer tool** for legitimate closed-test monitoring. It does **not** find testers, guarantee Play production approval, or bypass platform policies.
 
@@ -48,7 +49,7 @@ The SDK is a **developer tool** for legitimate closed-test monitoring. It does *
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("com.groundspaceteam:closed-test-sdk:0.2.9")
+    implementation("com.groundspaceteam:closed-test-sdk:0.2.11")
 }
 ```
 
