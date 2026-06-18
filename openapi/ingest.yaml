@@ -206,6 +206,13 @@ components:
         tester_id:
           type: string
           nullable: true
+        install_referrer:
+          type: string
+          nullable: true
+          maxLength: 2048
+          description: |
+            Play Install Referrer string when install came from a tracked Play link
+            (`referrer=df_{token}`). Optional; SDK reads once per install and does not block init on failure.
 
     InitResponse:
       type: object

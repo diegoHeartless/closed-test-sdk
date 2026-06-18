@@ -1,5 +1,5 @@
 [versions]
-closedTestSdk = "0.2.10"
+closedTestSdk = "0.2.11"
 jreleaser = "1.23.0"
 agp = "8.3.2"
 kotlin = "1.9.24"
@@ -13,6 +13,7 @@ okhttp = "4.12.0"
 serialization = "1.6.3"
 desugar = "2.0.4"
 coroutines = "1.8.1"
+installreferrer = "2.2"
 startup = "1.1.1"
 
 [libraries]
@@ -32,6 +33,7 @@ androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+installreferrer = { group = "com.android.installreferrer", name = "installreferrer", version.ref = "installreferrer" }
 desugar = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
 [plugins]

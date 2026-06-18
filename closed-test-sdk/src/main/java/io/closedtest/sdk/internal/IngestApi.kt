@@ -108,6 +108,7 @@ internal data class InitRequestDto(
     @SerialName("os_version") val osVersion: String,
     @SerialName("test_session_id") val testSessionId: String? = null,
     @SerialName("tester_id") val testerId: String? = null,
+    @SerialName("install_referrer") val installReferrer: String? = null,
 )
 
 @Serializable

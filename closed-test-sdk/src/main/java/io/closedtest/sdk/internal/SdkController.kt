@@ -417,6 +417,7 @@ internal object SdkController {
 
     private suspend fun performHandshake() {
         if (!ingestAllowed()) return
+        val installReferrer = InstallReferrerReader.readOnce(appCtx)
         val req = InitRequestDto(
             publishableKey = publishableKey.takeIf { it.isNotBlank() },
             packageName = packageName,
@@ -430,6 +431,7 @@ internal object SdkController {
             osVersion = osVersion,
             testSessionId = bindingStore.testSessionId,
             testerId = bindingStore.testerId,
+            installReferrer = installReferrer,
         )
         val result = withContext(Dispatchers.IO) { ingest.postInit(req) }
         result.onSuccess { applyInitResponse(it) }
