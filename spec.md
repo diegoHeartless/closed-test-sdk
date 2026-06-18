@@ -22,6 +22,7 @@
 | `POST /v1/init` | Handshake: **Advanced** — `publishable_key` + общие поля; **Base** — без ключа, но с `package_name`, `build_type`, `version_name`, `version_code` (сервер матчит allowlist); ответ — токены и сроки жизни |
 | `POST /v1/session/refresh` | Обмен `refresh_token` на новую пару токенов |
 | `POST /v1/events` | Батч событий, `Authorization: Bearer <session_token>` |
+| `POST /v1/tester-contact` | Опциональный self-report Telegram для roster организатора; тот же Bearer; тело `{ "contact_type": "telegram", "contact_value": "username" }` (без `@`) |
 
 Рекомендуется заголовок `X-Request-Id` (UUID). Детали тел и ответов — в `openapi/ingest.yaml`.
 

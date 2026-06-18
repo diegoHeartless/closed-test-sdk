@@ -31,6 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -46,6 +47,8 @@ internal object SdkController {
     private const val MAX_UPLOAD_RETRIES_SAME_BATCH = 12
     private const val PREFS_RUNTIME = "io.closedtest.sdk.runtime"
     private const val KEY_INGEST_ENABLED = "ingest_enabled"
+    private const val PREFS_ROSTER_SCHEDULE = "io.closedtest.sdk.roster_contact_schedule"
+    private const val KEY_FIRST_COLD_START_SEEN = "first_cold_start_seen"
 
     private val lock = Any()
     private var initialized = false
@@ -262,6 +265,7 @@ internal object SdkController {
         mainHandler.removeCallbacks(sessionEndRunnable)
         sdkScope?.launch {
             val monotonic = SystemClock.elapsedRealtime()
+            var wasFirstColdStart = false
             if (!logicalSessionOpen) {
                 logicalSessionOpen = true
                 val sid = UUID.randomUUID().toString()
@@ -271,6 +275,9 @@ internal object SdkController {
                     "cold_start"
                 } else {
                     "resume"
+                }
+                if (reason == "cold_start") {
+                    wasFirstColdStart = markFirstColdStartIfNew()
                 }
                 enqueueJsonObject(
                     EventJson.sessionStart(
@@ -298,6 +305,9 @@ internal object SdkController {
             )
             startHeartbeatLoop()
             performHandshake()
+            if (wasFirstColdStart) {
+                maybeScheduleRosterContactPrompt()
+            }
         }
     }
 
@@ -446,6 +456,56 @@ internal object SdkController {
         if (!initialized || noop) return false
         return appCtx.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
             .getBoolean(KEY_INGEST_ENABLED, true)
+    }
+
+    private fun markFirstColdStartIfNew(): Boolean {
+        val prefs = appCtx.getSharedPreferences(PREFS_ROSTER_SCHEDULE, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(KEY_FIRST_COLD_START_SEEN, false)) return false
+        prefs.edit().putBoolean(KEY_FIRST_COLD_START_SEEN, true).apply()
+        return true
+    }
+
+    private fun maybeScheduleRosterContactPrompt() {
+        if (!options.rosterContactPromptEnabled) return
+        val app = appCtx.applicationContext
+        if (app !is Application) return
+        mainHandler.post {
+            RosterContactPromptPresenter.scheduleAfterFirstSession(
+                application = app,
+                options = options,
+                onSubmit = { username, done ->
+                    sdkScope?.launch {
+                        val result = submitTesterContact(username)
+                        mainHandler.post { done(result) }
+                    } ?: mainHandler.post { done(Result.failure(IllegalStateException("SDK not ready"))) }
+                },
+            )
+        }
+    }
+
+    private suspend fun submitTesterContact(username: String): Result<Unit> {
+        if (!ingestAllowed()) return Result.failure(IllegalStateException("Ingest disabled"))
+        var token = tokenStore.sessionToken
+        if (token.isNullOrBlank()) {
+            performHandshake()
+            token = tokenStore.sessionToken
+        }
+        if (token.isNullOrBlank()) return Result.failure(IllegalStateException("No session token"))
+        val body =
+            json.encodeToString(
+                TesterContactRequestDto(contactType = "telegram", contactValue = username),
+            )
+        var post = withContext(Dispatchers.IO) { ingest.postTesterContact(body, token!!) }
+        if (post.isFailure) {
+            val err = post.exceptionOrNull()
+            if (err is IngestHttpException && err.code == 401 && refreshTokens()) {
+                token = tokenStore.sessionToken
+                if (!token.isNullOrBlank()) {
+                    post = withContext(Dispatchers.IO) { ingest.postTesterContact(body, token!!) }
+                }
+            }
+        }
+        return post
     }
 
     private suspend fun refreshTokens(): Boolean {

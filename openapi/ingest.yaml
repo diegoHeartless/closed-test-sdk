@@ -101,6 +101,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorBody'
 
+  /v1/tester-contact:
+    post:
+      tags: [ingest]
+      summary: Tester self-report contact (e.g. Telegram) for organizer roster
+      operationId: postTesterContact
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TesterContactRequest'
+      responses:
+        '200':
+          description: Contact saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TesterContactResponse'
+        '401':
+          description: Invalid or expired session token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '403':
+          description: Ingest key not linked to a ProofFlow test
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        '422':
+          description: Invalid contact value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -228,6 +273,35 @@ components:
         see `spec.md` §4–6. Common required keys include type, occurred_at, monotonic_ms,
         device_id, sdk_version, app_version, os, os_version, event_id.
       additionalProperties: true
+
+    TesterContactRequest:
+      type: object
+      required:
+        - contact_type
+        - contact_value
+      properties:
+        contact_type:
+          type: string
+          enum: [telegram]
+        contact_value:
+          type: string
+          description: Telegram username without @ (5–32 chars)
+
+    TesterContactResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        contact_type:
+          type: string
+        contact_value:
+          type: string
+        display_label:
+          type: string
+          nullable: true
+        open_url:
+          type: string
+          nullable: true
 
     ErrorBody:
       type: object

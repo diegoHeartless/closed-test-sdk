@@ -161,6 +161,17 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 
 Документ продукта: **`ProofFlow/docs/STATS_AND_DEEPLINKS_DRAFT.md`** §3.1.1.
 
+## Roster contact (Telegram self-report)
+
+Опциональный диалог **один раз** после первого `session_start` (`cold_start`): тестер может передать Telegram username организатору (`POST /v1/tester-contact`, тот же session token, что и для `/v1/events`).
+
+- По умолчанию **выключено** (`ClosedTestOptions.rosterContactPromptEnabled = false`).
+- Включение: `ClosedTest.initialize(context, publishableKey, ClosedTestOptions(rosterContactPromptEnabled = true))`.
+- Авто-init: `<meta-data android:name="io.closedtest.sdk.roster_contact_prompt_enabled" android:value="true" />`.
+- Username не попадает в `track_event.props` — только в dedicated endpoint. Организатор видит контакт в ProofFlow (roster / stats).
+
+Документ продукта: **`ProofFlow/docs/UNIFIED_API_DRAFT.md`** §5.1.
+
 ## Маркер discovery для ProofFlow (ContentProvider)
 
 Библиотека мержит экспортированный `ContentProvider`, чтобы приложение **ProofFlow** могло убедиться, что в указанном пакете установлена сборка **с этим SDK**, без сканирования всех приложений на устройстве.

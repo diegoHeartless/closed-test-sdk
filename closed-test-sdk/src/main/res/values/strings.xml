@@ -5,6 +5,15 @@
     <string name="closed_test_sdk_proof_flow_hint_open">Open ProofFlow</string>
     <string name="closed_test_sdk_proof_flow_hint_later">Later</string>
     <string name="closed_test_sdk_proof_flow_hint_never">Don\'t ask again</string>
+    <string name="closed_test_sdk_roster_contact_title">Share your Telegram?</string>
+    <string name="closed_test_sdk_roster_contact_message">The test organizer can reach you on Telegram for questions about this closed test. Your username is sent once to the server and shown only to the organizer.</string>
+    <string name="closed_test_sdk_roster_contact_input_hint">@username</string>
+    <string name="closed_test_sdk_roster_contact_submit">Share</string>
+    <string name="closed_test_sdk_roster_contact_later">Not now</string>
+    <string name="closed_test_sdk_roster_contact_never">Don\'t ask again</string>
+    <string name="closed_test_sdk_roster_contact_invalid">Enter a valid Telegram username (5–32 characters)</string>
+    <string name="closed_test_sdk_roster_contact_saved">Telegram saved</string>
+    <string name="closed_test_sdk_roster_contact_failed">Could not save contact</string>
     <string name="closed_test_sdk_daily_reminder_title">Time to test</string>
     <string name="closed_test_sdk_daily_reminder_body">Open the app today to keep your closed test on track.</string>
     <string name="closed_test_sdk_daily_reminder_channel_name">Test reminders</string>

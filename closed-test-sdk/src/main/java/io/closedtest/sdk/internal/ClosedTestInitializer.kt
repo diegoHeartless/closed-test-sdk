@@ -16,6 +16,7 @@ import io.closedtest.sdk.ClosedTestOptions
  * - <meta-data android:name="io.closedtest.sdk.daily_reminder_enabled" android:value="true|false" /> — локальное напоминание (по умолчанию **true**, 15:00 local).
  * - <meta-data android:name="io.closedtest.sdk.daily_reminder_hour" android:value="0-23" />
  * - <meta-data android:name="io.closedtest.sdk.daily_reminder_minute" android:value="0-59" />
+ * - <meta-data android:name="io.closedtest.sdk.roster_contact_prompt_enabled" android:value="true|false" /> — Telegram self-report after first session (default **false**).
  */
 internal class ClosedTestInitializer : Initializer<Unit> {
     override fun create(context: Context) {
@@ -32,6 +33,7 @@ internal class ClosedTestInitializer : Initializer<Unit> {
         val dailyReminderEnabled = meta?.getBoolean(META_DAILY_REMINDER_ENABLED, true) ?: true
         val dailyReminderHour = (meta?.getInt(META_DAILY_REMINDER_HOUR, 15) ?: 15).coerceIn(0, 23)
         val dailyReminderMinute = (meta?.getInt(META_DAILY_REMINDER_MINUTE, 0) ?: 0).coerceIn(0, 59)
+        val rosterContactPromptEnabled = meta?.getBoolean(META_ROSTER_CONTACT_PROMPT_ENABLED, false) ?: false
 
         // initialize() is idempotent on SDK side; empty key uses Base ingest (package/build/version tuple).
         ClosedTest.initialize(
@@ -42,6 +44,7 @@ internal class ClosedTestInitializer : Initializer<Unit> {
                 dailyReminderEnabled = dailyReminderEnabled,
                 dailyReminderHourLocal = dailyReminderHour,
                 dailyReminderMinuteLocal = dailyReminderMinute,
+                rosterContactPromptEnabled = rosterContactPromptEnabled,
             ),
         )
     }
@@ -55,5 +58,6 @@ internal class ClosedTestInitializer : Initializer<Unit> {
         const val META_DAILY_REMINDER_ENABLED = "io.closedtest.sdk.daily_reminder_enabled"
         const val META_DAILY_REMINDER_HOUR = "io.closedtest.sdk.daily_reminder_hour"
         const val META_DAILY_REMINDER_MINUTE = "io.closedtest.sdk.daily_reminder_minute"
+        const val META_ROSTER_CONTACT_PROMPT_ENABLED = "io.closedtest.sdk.roster_contact_prompt_enabled"
     }
 }

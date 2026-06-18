@@ -22,6 +22,7 @@ import okhttp3.OkHttpClient
  * @property dailyReminderEnabled When true, schedules a **local** daily notification if the app was not opened today (device local time). Not a remote FCM push.
  * @property dailyReminderHourLocal Hour of day (0–23) in the device timezone for the reminder. Default **15** (3 PM).
  * @property dailyReminderMinuteLocal Minute (0–59) for the reminder. Default **0**.
+ * @property rosterContactPromptEnabled When true, may prompt once after first `session_start` for a Telegram handle (organizer roster). Default **false**.
  */
 data class ClosedTestOptions(
     val heartbeatIntervalMs: Long = 20_000L,
@@ -43,4 +44,9 @@ data class ClosedTestOptions(
     val dailyReminderEnabled: Boolean = true,
     val dailyReminderHourLocal: Int = 15,
     val dailyReminderMinuteLocal: Int = 0,
+    /**
+     * When true, may show a one-time dialog after the first `session_start` (`cold_start`) so the
+     * tester can share a Telegram username (`POST /v1/tester-contact`). Default **false** — opt in.
+     */
+    val rosterContactPromptEnabled: Boolean = false,
 )

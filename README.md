@@ -145,6 +145,7 @@ A working sample with `manifestPlaceholders` lives in [`examples/sample`](exampl
 | `dailyReminderEnabled` | Local daily notification when the app was not opened today (default `true`) |
 | `dailyReminderHourLocal` | Reminder hour in device timezone (default `15` = 3 PM) |
 | `dailyReminderMinuteLocal` | Reminder minute (default `0`) |
+| `rosterContactPromptEnabled` | One-time Telegram self-report dialog after first `session_start` (default `false`) |
 
 ---
 

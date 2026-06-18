@@ -46,6 +46,24 @@ internal class IngestApi(
             Result.failure(e)
         }
 
+    fun postTesterContact(bodyJson: String, bearer: String): Result<Unit> =
+        try {
+            val req = Request.Builder()
+                .url("$root/v1/tester-contact")
+                .addHeader("Authorization", "Bearer $bearer")
+                .addHeader("Content-Type", "application/json")
+                .post(bodyJson.toRequestBody(JSON))
+                .build()
+            client.newCall(req).execute().use { resp ->
+                when (resp.code) {
+                    in 200..299 -> Result.success(Unit)
+                    else -> Result.failure(IngestHttpException(resp.code, resp.body?.string()))
+                }
+            }
+        } catch (e: IOException) {
+            Result.failure(e)
+        }
+
     private fun postJson(url: String, requestBody: String, bearer: String?): Result<InitResponseDto> =
         try {
             val builder = Request.Builder()
@@ -107,4 +125,10 @@ internal data class InitResponseDto(
     @SerialName("ingest_enabled") val ingestEnabled: Boolean? = null,
     /** ProofFlow test id for PF-TEST deep link — см. `STATS_AND_DEEPLINKS_DRAFT.md` §3.1.1. */
     @SerialName("proofflow_test_id") val proofflowTestId: String? = null,
+)
+
+@Serializable
+internal data class TesterContactRequestDto(
+    @SerialName("contact_type") val contactType: String,
+    @SerialName("contact_value") val contactValue: String,
 )

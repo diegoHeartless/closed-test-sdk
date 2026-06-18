@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.10] — 2026-06-01
+
+### Added
+
+- **Roster contact self-report:** optional one-time dialog after the first `session_start` (`cold_start`) when `ClosedTestOptions.rosterContactPromptEnabled` is true (default **false**). Submits Telegram via `POST /v1/tester-contact` with the ingest session token. Manifest meta-data: `io.closedtest.sdk.roster_contact_prompt_enabled`. See `docs/SDK_USAGE.md`, `ProofFlow/docs/UNIFIED_API_DRAFT.md` §5.1.
+
 ## [0.2.9] — 2026-06-01
 
 ### Added
