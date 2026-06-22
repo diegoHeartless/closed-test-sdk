@@ -43,7 +43,7 @@ object ClosedTest {
         SdkController.initialize(context.applicationContext, publishableKey, options)
     }
 
-    /** When `test_session_id` / `tester_id` query parameters are present, stores binding for subsequent events. */
+    /** When `test_session_id` / `tester_id` or `referrer` / `install_referrer` query params are present, stores binding / tracked invite for init. */
     @JvmStatic
     fun handleDeepLink(uri: Uri?): Boolean = SdkController.handleDeepLink(uri)
 

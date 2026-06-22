@@ -185,13 +185,24 @@ internal object SdkController {
 
     fun handleDeepLink(uri: Uri?): Boolean {
         if (!initialized || uri == null) return false
+        var handled = false
+        InstallReferrerReader.parseFromDeepLink(uri)?.let { referrer ->
+            InstallReferrerReader.storeExplicit(appCtx, referrer)
+            sdkScope?.launch {
+                performHandshake()
+                flushBlocking()
+            }
+            handled = true
+        }
         val tester = uri.getQueryParameter("tester_id")
             ?: uri.getQueryParameter("testerId")
         val session = uri.getQueryParameter("test_session_id")
             ?: uri.getQueryParameter("testSessionId")
-        if (tester == null && session == null) return false
-        bindTester(tester, session)
-        return true
+        if (tester != null || session != null) {
+            bindTester(tester, session)
+            handled = true
+        }
+        return handled
     }
 
     fun bindTester(testerId: String?, testSessionId: String?) {

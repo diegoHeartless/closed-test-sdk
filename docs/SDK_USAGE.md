@@ -182,6 +182,23 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 - Продукт: **`ProofFlow/docs/TRACKED_PLAY_INVITE.md`** (фаза 3).
 - Настройка в anyapp **не требуется** — достаточно обновить SDK до **0.2.11+**.
 
+### Уже установленное приложение (SDK ≥ 0.2.12)
+
+Play Install Referrer **не обновляется** при повторном открытии Play, если anyapp уже стоял на устройстве. Для этого сценария DozenFlow отдаёт ссылку **`GET /open/app/{token}`** → `intent://…closedtest://bind?referrer=df_{token}`.
+
+В anyapp:
+
+1. SDK **≥ 0.2.12**
+2. `intent-filter` на launcher activity (как в `examples/sample`):
+
+```xml
+<data android:scheme="closedtest" android:host="bind" />
+```
+
+3. В `onCreate` / `onNewIntent`: `ClosedTest.handleDeepLink(intent?.data)`
+
+SDK сохранит `referrer` / `install_referrer` из query и отправит на следующем `init` — сервер матчит клик и привязывает `device_id` к roster.
+
 ## Маркер discovery для ProofFlow (ContentProvider)
 
 Библиотека мержит экспортированный `ContentProvider`, чтобы приложение **ProofFlow** могло убедиться, что в указанном пакете установлена сборка **с этим SDK**, без сканирования всех приложений на устройстве.

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.12] — 2026-06-01
+
+### Added
+
+- **Already-installed tracked invite:** `ClosedTest.handleDeepLink` accepts `referrer` / `install_referrer` / `df_referrer` on `closedtest://bind?…` (from DozenFlow `GET /open/app/{token}`). Value is cached and sent on the next `POST /v1/init` as `install_referrer`. Requires `intent-filter` on the host activity — see `docs/SDK_USAGE.md`.
+
 ## [0.2.11] — 2026-06-01
 
 ### Added
