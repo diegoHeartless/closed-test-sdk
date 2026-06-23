@@ -168,6 +168,30 @@ internal object EventJson {
         put("interval_ms", intervalMs)
     }
 
+    fun dailyPing(
+        monotonicMs: Long,
+        deviceId: String,
+        appVersion: String,
+        osVersion: String,
+        testerId: String?,
+        testSessionId: String?,
+        localDay: String,
+    ): JsonObject = buildJsonObject {
+        putAllKeys(
+            buildBase(
+                type = "daily_ping",
+                monotonicMs = monotonicMs,
+                deviceId = deviceId,
+                appVersion = appVersion,
+                osVersion = osVersion,
+                sdkSessionId = null,
+                testerId = testerId,
+                testSessionId = testSessionId,
+            ),
+        )
+        put("local_day", localDay)
+    }
+
     fun screenView(
         monotonicMs: Long,
         deviceId: String,

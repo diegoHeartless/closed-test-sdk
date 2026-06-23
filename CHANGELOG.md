@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.13] — 2026-06-01
+
+### Added
+
+- **`daily_ping`:** background ingest signal at most **once per calendar day** (device local), scheduled via WorkManager (~24h period, not exact time). Configure with `ClosedTestOptions.dailyPingEnabled` (default **true**) or manifest `io.closedtest.sdk.daily_ping_enabled`. Requires network; does not run when SDK is a no-op (e.g. debuggable + `collectInDebuggableBuilds=false`). See `spec.md` §4.
+
 ## [0.2.12] — 2026-06-01
 
 ### Added

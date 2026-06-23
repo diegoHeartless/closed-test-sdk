@@ -21,6 +21,7 @@ Embed this library in **anyapp** — the APK you distribute to closed or interna
 - Performs **`POST /v1/init`** handshake (Base or Advanced) and refreshes tokens on **401**.
 - Optionally links a tester to a Dozenflow test (deep link / bind) and can show a **“open Dozenflow”** hint when the server returns a test id.
 - Can show a **local daily reminder** at a fixed time (default **15:00** device local) if the app was **not opened yet today** — not a remote FCM push.
+- Sends a background **`daily_ping`** to ingest at most **once per calendar day** (approximate timing via WorkManager, not exact).
 - Exposes a **discovery marker** so the Dozenflow organizer app can verify your package has this SDK installed.
 - On installs from **tracked Play links**, sends **`install_referrer`** on `init` so the server can match the tester device to an organizer invite (SDK **≥ 0.2.11**).
 
@@ -146,7 +147,26 @@ A working sample with `manifestPlaceholders` lives in [`examples/sample`](exampl
 | `dailyReminderEnabled` | Local daily notification when the app was not opened today (default `true`) |
 | `dailyReminderHourLocal` | Reminder hour in device timezone (default `15` = 3 PM) |
 | `dailyReminderMinuteLocal` | Reminder minute (default `0`) |
+| `dailyPingEnabled` | Background `daily_ping` to server once per local day (default `true`; timing approximate) |
 | `rosterContactPromptEnabled` | One-time Telegram self-report dialog after first `session_start` (default `false`) |
+
+---
+
+## Daily server ping (`daily_ping`)
+
+When enabled (default), WorkManager schedules a **background upload** at most **once per calendar day** (device local). Exact time is **not** guaranteed — Android may batch the job within a ~24h window. Requires network. Use this for organizer **liveness** / churn signals when the app is not opened.
+
+```kotlin
+ClosedTestOptions(dailyPingEnabled = false) // opt out
+```
+
+Manifest (auto-init):
+
+```xml
+<meta-data android:name="io.closedtest.sdk.daily_ping_enabled" android:value="false" />
+```
+
+This is separate from the **local daily reminder** (notification). See [`spec.md`](spec.md) §4.
 
 ---
 
@@ -263,6 +283,7 @@ Details: [`spec.md`](spec.md) §5, [`CHANGELOG.md`](CHANGELOG.md) **0.2.8**.
 - **Room** queue + batched upload
 - Token **refresh** on HTTP **401**
 - Optional **local daily reminder** at configured local time (if enabled and app not opened today)
+- Optional background **`daily_ping`** once per local day (if enabled)
 
 ---
 

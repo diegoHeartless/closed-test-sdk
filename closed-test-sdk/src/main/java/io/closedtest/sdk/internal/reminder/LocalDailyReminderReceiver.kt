@@ -3,6 +3,7 @@ package io.closedtest.sdk.internal.reminder
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import io.closedtest.sdk.internal.dailyping.DailyPingScheduler
 
 internal class LocalDailyReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
@@ -15,5 +16,6 @@ internal class LocalDailyReminderBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
         LocalDailyReminderScheduler.rescheduleFromStoredConfig(context.applicationContext)
+        DailyPingScheduler.rescheduleFromStoredConfig(context.applicationContext)
     }
 }

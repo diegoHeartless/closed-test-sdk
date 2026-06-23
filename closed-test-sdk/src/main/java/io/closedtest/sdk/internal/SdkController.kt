@@ -19,6 +19,9 @@ import io.closedtest.sdk.internal.db.QueuedEventDao
 import io.closedtest.sdk.internal.db.QueuedEventEntity
 import io.closedtest.sdk.internal.reminder.DailyLaunchTracker
 import io.closedtest.sdk.internal.reminder.LocalDailyReminderScheduler
+import io.closedtest.sdk.internal.dailyping.DailyPingScheduler
+import io.closedtest.sdk.internal.dailyping.DailyPingTracker
+import io.closedtest.sdk.internal.dailyping.DailyPingWorkResult
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.Executors
@@ -175,6 +178,7 @@ internal object SdkController {
             ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
             app.registerComponentCallbacks(memoryCallbacks)
             LocalDailyReminderScheduler.apply(app, options)
+            DailyPingScheduler.apply(app, options)
 
             sdkScope?.launch {
                 performHandshake()
@@ -260,6 +264,41 @@ internal object SdkController {
     fun flush() {
         if (!initialized || noop) return
         sdkScope?.launch { flushBlocking() }
+    }
+
+    internal suspend fun runDailyPingWork(): DailyPingWorkResult {
+        if (!initialized || noop || !options.dailyPingEnabled) return DailyPingWorkResult.Skipped
+        val scope = sdkScope ?: return DailyPingWorkResult.Skipped
+        return withContext(scope.coroutineContext) { runDailyPingWorkOnSdkThread() }
+    }
+
+    private suspend fun runDailyPingWorkOnSdkThread(): DailyPingWorkResult {
+        if (DailyPingTracker.wasSentToday(appCtx)) return DailyPingWorkResult.AlreadySentToday
+        if (!ingestAllowed()) {
+            performHandshake()
+            if (!ingestAllowed()) return DailyPingWorkResult.Skipped
+        }
+        val now = System.currentTimeMillis()
+        val localDay = DailyPingTracker.localDayString(now)
+        val beforeCount = dao.count()
+        enqueueJsonObject(
+            EventJson.dailyPing(
+                monotonicMs = android.os.SystemClock.elapsedRealtime(),
+                deviceId = deviceId,
+                appVersion = appVersion,
+                osVersion = osVersion,
+                testerId = bindingStore.testerId,
+                testSessionId = bindingStore.testSessionId,
+                localDay = localDay,
+            ),
+        )
+        flushBlocking()
+        val afterCount = dao.count()
+        if (afterCount >= beforeCount + 1) {
+            return DailyPingWorkResult.Retry
+        }
+        DailyPingTracker.markSentToday(appCtx, now)
+        return DailyPingWorkResult.Sent
     }
 
     private fun enqueueUserEvent(builder: () -> JsonObject) {

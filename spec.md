@@ -34,6 +34,7 @@
 | `session_end` | Конец сессии |
 | `app_foreground` / `app_background` | Передний план / фон (отсекают «открыл и свернул») |
 | `heartbeat` | Периодический сигнал только в активном приложении (15–30 с) |
+| `daily_ping` | Не чаще одного раза за календарные сутки (локальное время устройства): фоновый сигнал, что приложение ещё установлено; время отправки приблизительное |
 | `screen_view` | Экран; имя задаёт разработчик |
 | `track_interaction` | Факт действия без детализации UI (опционально) |
 | `track_event` | Именованное событие + опциональные `props` |
@@ -48,6 +49,7 @@
 
 - `session_start` / `session_end`: опционально `reason` (`cold_start`, `timeout`, `user_quit`, …)
 - `heartbeat`: обязательно `interval_ms`
+- `daily_ping`: опционально `local_day` (`YYYY-MM-DD`, локальная дата устройства)
 - `screen_view`: обязательно `screen_name`
 - `track_interaction`: опционально `category`
 - `track_event`: обязательно `name`; опционально `props` — только без PII (§8)
