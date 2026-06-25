@@ -37,9 +37,14 @@ configurations.configureEach {
 group = "com.groundspaceteam"
 version = libs.versions.closedTestSdk.get()
 
+val jreleaserConfigFileName =
+    (findProperty("jreleaserConfigFile") as String?)
+        ?: System.getenv("JRELEASER_CONFIG_FILE")
+        ?: "jreleaser.yml"
+
 jreleaser {
     dependsOnAssemble = false
-    configFile.set(rootProject.layout.projectDirectory.file("jreleaser.yml"))
+    configFile.set(rootProject.layout.projectDirectory.file(jreleaserConfigFileName))
 }
 
 // jreleaserDeploy does not auto-stage modules — each workflow publishes its staging repo first.

@@ -50,7 +50,7 @@ jobs:
         run: |
           gradle :closed-test-sdk-navigation-compose:publishReleasePublicationToStagingRepository --no-daemon
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            gradle jreleaserDeploy --no-daemon --stacktrace --dryrun
+            gradle jreleaserDeploy -PjreleaserConfigFile=jreleaser-navigation-compose.yml --no-daemon --stacktrace --dryrun
           else
-            gradle jreleaserDeploy --no-daemon --stacktrace
+            gradle jreleaserDeploy -PjreleaserConfigFile=jreleaser-navigation-compose.yml --no-daemon --stacktrace
           fi
