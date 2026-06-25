@@ -23,7 +23,9 @@ jobs:
           gradle-version: "8.10.2"
 
       - name: Assemble release AAR
-        run: gradle :closed-test-sdk:assembleRelease --no-daemon
+        run: |
+          gradle :closed-test-sdk:assembleRelease --no-daemon
+          gradle :closed-test-sdk-navigation-compose:assembleRelease --no-daemon
 
       - name: Assemble sample debug
         run: gradle :examples:sample:assembleDebug --no-daemon

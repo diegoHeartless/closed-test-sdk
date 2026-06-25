@@ -42,6 +42,7 @@ jreleaser {
     configFile.set(rootProject.layout.projectDirectory.file("jreleaser.yml"))
 }
 
+# jreleaserDeploy does not auto-stage modules — each workflow publishes its staging repo first.
 tasks.named("jreleaserDeploy") {
-    dependsOn(":closed-test-sdk:publishReleasePublicationToStagingRepository")
+    // Intentionally no dependsOn; see publish-maven-central*.yml
 }

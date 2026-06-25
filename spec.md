@@ -100,6 +100,8 @@ Host-приложение (**anyapp**) мержит `ContentProvider` с authori
 
 Согласовать с бэкендом базовый URL, лимиты батча и RPS, отдельный ли нужен эндпоинт `bind` или достаточно полей в `init`/событиях.
 
+**Кросс-платформенный граф экранов** (Flutter, React Native, игровые движки): см. [`docs/CROSS_PLATFORM_SCREEN_GRAPH.md`](docs/CROSS_PLATFORM_SCREEN_GRAPH.md).
+
 ---
 
 *Выход Фазы 0 из `ROADMAP.md`.*

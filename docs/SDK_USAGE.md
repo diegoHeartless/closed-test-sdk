@@ -155,6 +155,47 @@ ClosedTest.trackEvent("onboarding_done", mapOf("step" to "2"))
 ClosedTest.flush()
 ```
 
+### Автотрекинг экранов (Navigation Compose)
+
+Опциональный артефакт — не тянет Compose в основной SDK:
+
+```kotlin
+dependencies {
+    implementation("com.groundspaceteam:closed-test-sdk:<version>")
+    implementation("com.groundspaceteam:closed-test-sdk-navigation-compose:<version>")
+}
+```
+
+```kotlin
+import io.closedtest.sdk.navigation.ClosedTestScreenTracking
+
+@Composable
+fun AppNav(navController: NavHostController) {
+    navController.ClosedTestScreenTracking()
+    NavHost(navController, startDestination = "home") {
+        composable("home") { HomeScreen() }
+        composable("settings") { SettingsScreen() }
+    }
+}
+```
+
+По умолчанию в `screen_view` уходит **route** из графа (например `profile/{userId}`), без query и без подстановки аргументов в путь — так снижается риск PII в `screen_name` (`spec.md` §8). Для кастомных имён:
+
+```kotlin
+navController.ClosedTestScreenTracking { destination ->
+    when (destination.route) {
+        "profile/{userId}" -> "profile"
+        else -> ClosedTestNavScreenNames.fromRoute(destination.route)
+    }
+}
+```
+
+Вне Compose: `navController.installClosedTestScreenTracking()` → `ClosedTestScreenTrackingHandle.close()` при уничтожении Activity.
+
+**Не покрывает:** одиночные Activity без Navigation, legacy Fragments (нужен отдельный helper на `FragmentManager` — см. [`docs/CROSS_PLATFORM_SCREEN_GRAPH.md`](CROSS_PLATFORM_SCREEN_GRAPH.md)).
+
+**Другие стеки** (Flutter, React Native, Unity): отдельные bridge-пакеты, тот же ingest-контракт `screen_view` — см. [`docs/CROSS_PLATFORM_SCREEN_GRAPH.md`](CROSS_PLATFORM_SCREEN_GRAPH.md).
+
 ## Привязка тестера
 
 ```kotlin

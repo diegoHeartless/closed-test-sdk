@@ -1,0 +1,43 @@
+# JReleaser: upload staged Maven layout for closed-test-sdk-navigation-compose.
+# Stage first: ./gradlew :closed-test-sdk-navigation-compose:publishReleasePublicationToStagingRepository
+# CI: workflow publish-maven-central-navigation-compose.yml (JRELEASER_CONFIG_FILE points here).
+
+project:
+  name: closed-test-sdk-navigation-compose
+  description: Optional Jetpack Navigation Compose screen tracking for closed-test-sdk.
+  languages:
+    java:
+      groupId: com.groundspaceteam
+      artifactId: closed-test-sdk-navigation-compose
+
+signing:
+  pgp:
+    active: ALWAYS
+    armored: true
+    verify: false
+    mode: COMMAND
+    command:
+      executable: gpg
+      args:
+        - "--batch"
+        - "--no-tty"
+        - "--pinentry-mode"
+        - "loopback"
+
+deploy:
+  maven:
+    mavenCentral:
+      sonatype:
+        active: RELEASE
+        url: https://central.sonatype.com/api/v1/publisher
+        applyMavenCentralRules: true
+        verifyPom: false
+        sign: true
+        namespace: com.groundspaceteam
+        stagingRepositories:
+          - closed-test-sdk-navigation-compose/build/staging-deploy
+        artifactOverrides:
+          - groupId: com.groundspaceteam
+            artifactId: closed-test-sdk-navigation-compose
+            jar: false
+            verifyPom: false

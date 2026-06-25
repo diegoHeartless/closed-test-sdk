@@ -253,6 +253,8 @@ export JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD="..."
 
 Либо явно по шагам: `./gradlew :closed-test-sdk:publishReleasePublicationToStagingRepository`, затем `./gradlew jreleaserDeploy`.
 
+**Navigation Compose** (`io.closedtest.sdk.navigation`): артефакт `closed-test-sdk-navigation-compose`, конфиг `jreleaser-navigation-compose.yml`, workflow **Publish navigation-compose to Maven Central** — сначала `:closed-test-sdk-navigation-compose:publishReleasePublicationToStagingRepository`, затем `jreleaserDeploy` с `JRELEASER_CONFIG_FILE=jreleaser-navigation-compose.yml`.
+
 В **`closed-test-sdk`** отключены задачи **`GenerateModuleMetadata`** (нет **`*.module`** в репозитории), чтобы в Central не уходил лишний неподписываемый Gradle metadata рядом с AAR.
 
 Проверка конфигурации без загрузки: `./gradlew jreleaserConfig` или `./gradlew jreleaserDeploy --dryrun`.

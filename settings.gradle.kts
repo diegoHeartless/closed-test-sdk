@@ -17,4 +17,5 @@ dependencyResolutionManagement {
 rootProject.name = "closed-test-sdk-root"
 
 include(":closed-test-sdk")
+include(":closed-test-sdk-navigation-compose")
 include(":examples:sample")
