@@ -92,7 +92,7 @@ flowchart TB
   "occurred_at": "2026-05-31T12:00:00Z",
   "monotonic_ms": 12345678,
   "device_id": "550e8400-e29b-41d4-a716-446655440000",
-  "sdk_version": "0.2.13",
+  "sdk_version": "0.2.14",
   "app_version": "1.4.0",
   "os": "android",
   "os_version": "14",

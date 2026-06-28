@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.14] — 2026-06-01
+
+### Fixed
+
+- **Ingest handshake:** reuse a stored refresh token before `POST /v1/init` on cold start, foreground, and flush — avoids a new init session on every app launch when the refresh token is still valid (helps keep roster accurate; fewer redundant server sessions).
+
 ## [0.2.13] — 2026-06-01
 
 ### Added
