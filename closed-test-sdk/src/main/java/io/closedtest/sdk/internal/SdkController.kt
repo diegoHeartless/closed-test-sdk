@@ -181,7 +181,7 @@ internal object SdkController {
             DailyPingScheduler.apply(app, options)
 
             sdkScope?.launch {
-                performHandshake()
+                ensureIngestSession()
                 flushBlocking()
             }
         }
@@ -193,7 +193,7 @@ internal object SdkController {
         InstallReferrerReader.parseFromDeepLink(uri)?.let { referrer ->
             InstallReferrerReader.storeExplicit(appCtx, referrer)
             sdkScope?.launch {
-                performHandshake()
+                postInitHandshake()
                 flushBlocking()
             }
             handled = true
@@ -275,7 +275,7 @@ internal object SdkController {
     private suspend fun runDailyPingWorkOnSdkThread(): DailyPingWorkResult {
         if (DailyPingTracker.wasSentToday(appCtx)) return DailyPingWorkResult.AlreadySentToday
         if (!ingestAllowed()) {
-            performHandshake()
+            ensureIngestSession()
             if (!ingestAllowed()) return DailyPingWorkResult.Skipped
         }
         val now = System.currentTimeMillis()
@@ -354,7 +354,7 @@ internal object SdkController {
                 ),
             )
             startHeartbeatLoop()
-            performHandshake()
+            ensureIngestSession()
             if (wasFirstColdStart) {
                 maybeScheduleRosterContactPrompt()
             }
@@ -465,7 +465,15 @@ internal object SdkController {
         mainHandler.postDelayed(flushRunnable, FLUSH_DEBOUNCE_MS)
     }
 
-    private suspend fun performHandshake() {
+    /** Reuse refresh token when possible; `POST /v1/init` only when no valid session can be obtained. */
+    private suspend fun ensureIngestSession() {
+        if (!ingestAllowed()) return
+        if (!tokenStore.sessionToken.isNullOrBlank()) return
+        if (refreshTokens()) return
+        postInitHandshake()
+    }
+
+    private suspend fun postInitHandshake() {
         if (!ingestAllowed()) return
         val installReferrer = InstallReferrerReader.readOnce(appCtx)
         val req = InitRequestDto(
@@ -539,7 +547,7 @@ internal object SdkController {
         if (!ingestAllowed()) return Result.failure(IllegalStateException("Ingest disabled"))
         var token = tokenStore.sessionToken
         if (token.isNullOrBlank()) {
-            performHandshake()
+            ensureIngestSession()
             token = tokenStore.sessionToken
         }
         if (token.isNullOrBlank()) return Result.failure(IllegalStateException("No session token"))
@@ -576,7 +584,7 @@ internal object SdkController {
         if (!ingestAllowed()) return
         var token = tokenStore.sessionToken
         if (token.isNullOrBlank()) {
-            performHandshake()
+            ensureIngestSession()
             token = tokenStore.sessionToken
             if (token.isNullOrBlank()) return
         }
