@@ -11,22 +11,25 @@ on:
         type: boolean
         default: false
 
+permissions: read-all
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-      # `runner` context is not allowed in `jobs.*.env`; use shell env RUNNER_TEMP + GITHUB_ENV.
       - name: Set GNUPGHOME for gpg / JReleaser (COMMAND mode)
         run: echo "GNUPGHOME=${RUNNER_TEMP}/jreleaser-gpg" >> "$GITHUB_ENV"
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
         with:
           gradle-version: "8.10.2"
 
@@ -43,7 +46,6 @@ jobs:
 
       - name: Stage, sign, deploy (JReleaser → Central Portal)
         env:
-          # Unsigned staging; JReleaser signs via gpg (see jreleaser.yml signing.pgp.mode=COMMAND).
           ORG_GRADLE_PROJECT_skipMavenSigning: "true"
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.SIGNING_PASSWORD }}
           JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
