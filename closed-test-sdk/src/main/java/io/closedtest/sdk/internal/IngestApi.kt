@@ -126,6 +126,8 @@ internal data class InitResponseDto(
     @SerialName("ingest_enabled") val ingestEnabled: Boolean? = null,
     /** ProofFlow test id for PF-TEST deep link — см. `STATS_AND_DEEPLINKS_DRAFT.md` §3.1.1. */
     @SerialName("proofflow_test_id") val proofflowTestId: String? = null,
+    /** Organizer @username without @ when linked in Dozenflow (tester feedback). */
+    @SerialName("organizer_telegram") val organizerTelegram: String? = null,
 )
 
 @Serializable

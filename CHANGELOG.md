@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.15] — 2026-06-29
+
+### Added
+
+- **`organizer_telegram` on `POST /v1/init`:** optional response field — normalized Telegram username (no `@`) when the test organizer linked Telegram in Dozenflow. Parsed in `InitResponseDto` for future tester-feedback flows (e.g. screenshot share). Contract: `openapi/ingest.yaml`, AndroidServer ingest.
+
 ## [0.2.14] — 2026-06-01
 
 ### Fixed
