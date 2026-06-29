@@ -1,6 +1,7 @@
 # Closed Test SDK for Android
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.groundspaceteam/closed-test-sdk)](https://central.sonatype.com/artifact/com.groundspaceteam/closed-test-sdk)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/diegoHeartless/closed-test-sdk/badge)](https://api.securityscorecards.dev/projects/github.com/diegoHeartless/closed-test-sdk)
 
 Embed this library in **anyapp** — the APK you distribute to closed or internal testers — to report **session and participation signals** to the Dozenflow ingest API. Organizers monitor tests in the **[Dozenflow](https://dozenflow.com)** mobile app and web dashboard; testers usually install **only your app**, not Dozenflow.
 
