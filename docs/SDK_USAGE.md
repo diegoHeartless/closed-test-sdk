@@ -235,9 +235,11 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 - По умолчанию **включено** (`ClosedTestOptions.screenshotFeedbackEnabled = true`).
 - Выключение: `ClosedTestOptions(screenshotFeedbackEnabled = false)` или manifest  
   `<meta-data android:name="io.closedtest.sdk.screenshot_feedback_enabled" android:value="false" />`.
+- **По умолчанию (SDK ≥ 0.2.17, reduced):** SDK **не** добавляет в anyapp разрешения на фото — не нужна декларация Google Play «Photo and video». После скриншота: диалог и открытие `https://t.me/{organizer_telegram}` (без прикрепления файла).
+- **Полный режим (опционально):** объявите в **манифесте anyapp** `READ_MEDIA_IMAGES` (API 33+) и/или `READ_EXTERNAL_STORAGE` (maxSdk 32), запросите runtime-разрешение при необходимости и заполните декларацию в Play Console. Тогда кнопка **Share** может приложить последний скриншот к chooser.
 - **Android 14+ (API 34):** детект через `ScreenCaptureCallback` (без runtime-разрешений).
-- **API 24–33:** детект через `MediaStore` (менее надёжно); для прикрепления скрина к share intent на API 33+ может понадобиться `READ_MEDIA_IMAGES` (объявлено в manifest SDK, merge в anyapp).
-- Кнопка **Share** открывает системный chooser с последним скриншотом; если файл недоступен — deep link `https://t.me/{organizer_telegram}`.
+- **API 24–33:** детект через `MediaStore` observer (менее надёжно, чем на API 34+).
+- Кнопка **Share:** с разрешениями — chooser с картинкой; без — deep link в Telegram.
 - Cooldown между подсказками: **`screenshotFeedbackCooldownMs`** (по умолчанию 2 мин). «Don't ask again» отключает фичу.
 - События ingest: `screenshot_feedback_prompt_shown`, `screenshot_feedback_shared` (`props.with_image`: `true` / `false` / `failed`).
 

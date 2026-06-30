@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.17] — 2026-06-29
+
+### Changed
+
+- **Screenshot feedback (default, reduced):** SDK no longer merges `READ_MEDIA_IMAGES` / `READ_EXTERNAL_STORAGE` into the host app. After a screenshot: dialog + Telegram chat deep link still work; attaching the image file in the share chooser requires the host app to declare those permissions and complete Google Play's photo-permission declaration.
+
 ## [0.2.16] — 2026-06-30
 
 ### Added

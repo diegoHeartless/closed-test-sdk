@@ -5,9 +5,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- Optional: improves attaching the latest screenshot on API 33–32 when sharing to Telegram. -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" android:minSdkVersion="33" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE are NOT declared here (Play photo policy).
+         Default: dialog + Telegram deep link without attaching the file. For image attach, declare
+         them in the host app manifest and complete Google Play photo-permission declaration. -->
 
     <application>
         <provider

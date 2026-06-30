@@ -24,7 +24,7 @@ import okhttp3.OkHttpClient
  * @property dailyReminderMinuteLocal Minute (0–59) for the reminder. Default **0**.
  * @property dailyPingEnabled When true, schedules a background **server** `daily_ping` at most once per calendar day (device local). Timing is approximate (WorkManager, within ~24h). Default **true**.
  * @property rosterContactPromptEnabled When true, may prompt once after first `session_start` for a Telegram handle (organizer roster). Default **false**.
- * @property screenshotFeedbackEnabled When true and init returns `organizer_telegram`, may prompt after a screenshot to share feedback with the organizer on Telegram. Default **true**.
+ * @property screenshotFeedbackEnabled When true and init returns `organizer_telegram`, may prompt after a screenshot to share feedback with the organizer on Telegram. Default **true**. SDK does not declare photo read permissions; share opens Telegram with the image only if the host app added `READ_MEDIA_IMAGES` / `READ_EXTERNAL_STORAGE`.
  * @property screenshotFeedbackCooldownMs Minimum time between screenshot feedback prompts. Default **2 minutes**.
  */
 data class ClosedTestOptions(
