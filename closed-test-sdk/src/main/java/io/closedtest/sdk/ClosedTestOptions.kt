@@ -24,6 +24,8 @@ import okhttp3.OkHttpClient
  * @property dailyReminderMinuteLocal Minute (0–59) for the reminder. Default **0**.
  * @property dailyPingEnabled When true, schedules a background **server** `daily_ping` at most once per calendar day (device local). Timing is approximate (WorkManager, within ~24h). Default **true**.
  * @property rosterContactPromptEnabled When true, may prompt once after first `session_start` for a Telegram handle (organizer roster). Default **false**.
+ * @property screenshotFeedbackEnabled When true and init returns `organizer_telegram`, may prompt after a screenshot to share feedback with the organizer on Telegram. Default **true**.
+ * @property screenshotFeedbackCooldownMs Minimum time between screenshot feedback prompts. Default **2 minutes**.
  */
 data class ClosedTestOptions(
     val heartbeatIntervalMs: Long = 20_000L,
@@ -51,4 +53,11 @@ data class ClosedTestOptions(
      * tester can share a Telegram username (`POST /v1/tester-contact`). Default **false** — opt in.
      */
     val rosterContactPromptEnabled: Boolean = false,
+    /**
+     * When true and `POST /v1/init` returns `organizer_telegram`, may show a dialog after the user
+     * takes a screenshot to share feedback with the test organizer on Telegram. Default **true**.
+     */
+    val screenshotFeedbackEnabled: Boolean = true,
+    /** Minimum interval between screenshot feedback prompts (after dismiss or share). */
+    val screenshotFeedbackCooldownMs: Long = 2L * 60 * 1000,
 )

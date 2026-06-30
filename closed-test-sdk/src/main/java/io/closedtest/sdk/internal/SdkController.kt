@@ -50,6 +50,7 @@ internal object SdkController {
     private const val MAX_UPLOAD_RETRIES_SAME_BATCH = 12
     private const val PREFS_RUNTIME = "io.closedtest.sdk.runtime"
     private const val KEY_INGEST_ENABLED = "ingest_enabled"
+    private const val KEY_ORGANIZER_TELEGRAM = "organizer_telegram"
     private const val PREFS_ROSTER_SCHEDULE = "io.closedtest.sdk.roster_contact_schedule"
     private const val KEY_FIRST_COLD_START_SEEN = "first_cold_start_seen"
 
@@ -179,6 +180,15 @@ internal object SdkController {
             app.registerComponentCallbacks(memoryCallbacks)
             LocalDailyReminderScheduler.apply(app, options)
             DailyPingScheduler.apply(app, options)
+
+            if (app is Application) {
+                val storedOrganizer =
+                    app.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
+                        .getString(KEY_ORGANIZER_TELEGRAM, null)
+                mainHandler.post {
+                    ScreenshotFeedbackPresenter.configureAfterInit(app, options, storedOrganizer)
+                }
+            }
 
             sdkScope?.launch {
                 ensureIngestSession()
@@ -503,11 +513,23 @@ internal object SdkController {
             .edit()
             .putBoolean(KEY_INGEST_ENABLED, enabled)
             .apply()
+        val organizerTelegram = TelegramUsername.normalize(dto.organizerTelegram.orEmpty())
+        appCtx.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
+            .edit()
+            .apply {
+                if (organizerTelegram != null) {
+                    putString(KEY_ORGANIZER_TELEGRAM, organizerTelegram)
+                } else {
+                    remove(KEY_ORGANIZER_TELEGRAM)
+                }
+            }
+            .apply()
         dto.serverHeartbeatIntervalMs?.let { heartbeatMs = it }
         val app = appCtx.applicationContext
         if (app is Application) {
             mainHandler.post {
                 ProofFlowHintPresenter.scheduleAfterInit(app, options, dto.proofflowTestId)
+                ScreenshotFeedbackPresenter.configureAfterInit(app, options, organizerTelegram)
             }
         }
     }

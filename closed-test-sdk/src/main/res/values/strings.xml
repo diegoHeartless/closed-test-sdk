@@ -18,4 +18,11 @@
     <string name="closed_test_sdk_daily_reminder_body">Open the app today to keep your closed test on track.</string>
     <string name="closed_test_sdk_daily_reminder_channel_name">Test reminders</string>
     <string name="closed_test_sdk_daily_reminder_channel_desc">Local daily reminder when you have not opened the app yet today.</string>
+    <string name="closed_test_sdk_screenshot_feedback_title">Send feedback?</string>
+    <string name="closed_test_sdk_screenshot_feedback_message">You took a screenshot. Share it with the test organizer %1$s on Telegram.</string>
+    <string name="closed_test_sdk_screenshot_feedback_share">Share</string>
+    <string name="closed_test_sdk_screenshot_feedback_later">Not now</string>
+    <string name="closed_test_sdk_screenshot_feedback_never">Don\'t ask again</string>
+    <string name="closed_test_sdk_screenshot_feedback_share_text">Closed test feedback for %1$s</string>
+    <string name="closed_test_sdk_screenshot_feedback_chooser">Share screenshot</string>
 </resources>

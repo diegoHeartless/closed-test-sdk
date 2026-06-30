@@ -18,6 +18,7 @@ import io.closedtest.sdk.ClosedTestOptions
  * - <meta-data android:name="io.closedtest.sdk.daily_reminder_minute" android:value="0-59" />
  * - <meta-data android:name="io.closedtest.sdk.daily_ping_enabled" android:value="true|false" /> — фоновый `daily_ping` на ingest (по умолчанию **true**, ~раз в сутки).
  * - <meta-data android:name="io.closedtest.sdk.roster_contact_prompt_enabled" android:value="true|false" /> — Telegram self-report after first session (default **false**).
+ * - <meta-data android:name="io.closedtest.sdk.screenshot_feedback_enabled" android:value="true|false" /> — screenshot → share with organizer on Telegram when init returns `organizer_telegram` (default **true**).
  */
 internal class ClosedTestInitializer : Initializer<Unit> {
     override fun create(context: Context) {
@@ -36,6 +37,7 @@ internal class ClosedTestInitializer : Initializer<Unit> {
         val dailyReminderMinute = (meta?.getInt(META_DAILY_REMINDER_MINUTE, 0) ?: 0).coerceIn(0, 59)
         val dailyPingEnabled = meta?.getBoolean(META_DAILY_PING_ENABLED, true) ?: true
         val rosterContactPromptEnabled = meta?.getBoolean(META_ROSTER_CONTACT_PROMPT_ENABLED, false) ?: false
+        val screenshotFeedbackEnabled = meta?.getBoolean(META_SCREENSHOT_FEEDBACK_ENABLED, true) ?: true
 
         // initialize() is idempotent on SDK side; empty key uses Base ingest (package/build/version tuple).
         ClosedTest.initialize(
@@ -48,6 +50,7 @@ internal class ClosedTestInitializer : Initializer<Unit> {
                 dailyReminderMinuteLocal = dailyReminderMinute,
                 dailyPingEnabled = dailyPingEnabled,
                 rosterContactPromptEnabled = rosterContactPromptEnabled,
+                screenshotFeedbackEnabled = screenshotFeedbackEnabled,
             ),
         )
     }
@@ -63,5 +66,6 @@ internal class ClosedTestInitializer : Initializer<Unit> {
         const val META_DAILY_REMINDER_MINUTE = "io.closedtest.sdk.daily_reminder_minute"
         const val META_DAILY_PING_ENABLED = "io.closedtest.sdk.daily_ping_enabled"
         const val META_ROSTER_CONTACT_PROMPT_ENABLED = "io.closedtest.sdk.roster_contact_prompt_enabled"
+        const val META_SCREENSHOT_FEEDBACK_ENABLED = "io.closedtest.sdk.screenshot_feedback_enabled"
     }
 }

@@ -4,7 +4,7 @@ info:
   description: |
     HTTP contract for Android closed-test-sdk: handshake, token refresh, batched events.
     Human-readable semantics and PII rules: `spec.md` in repo root.
-  version: 0.2.15
+  version: 0.2.16
 
 servers:
   - url: https://api.groundspaceteam.com

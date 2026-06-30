@@ -228,6 +228,21 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 
 Документ продукта: **`ProofFlow/docs/UNIFIED_API_DRAFT.md`** §5.1.
 
+## Screenshot feedback (Telegram → organizer, SDK ≥ 0.2.16)
+
+Если организатор привязал Telegram в Dozenflow, сервер возвращает **`organizer_telegram`** в ответе **`POST /v1/init`**. SDK может после скриншота показать диалог «Отправить организатору в Telegram».
+
+- По умолчанию **включено** (`ClosedTestOptions.screenshotFeedbackEnabled = true`).
+- Выключение: `ClosedTestOptions(screenshotFeedbackEnabled = false)` или manifest  
+  `<meta-data android:name="io.closedtest.sdk.screenshot_feedback_enabled" android:value="false" />`.
+- **Android 14+ (API 34):** детект через `ScreenCaptureCallback` (без runtime-разрешений).
+- **API 24–33:** детект через `MediaStore` (менее надёжно); для прикрепления скрина к share intent на API 33+ может понадобиться `READ_MEDIA_IMAGES` (объявлено в manifest SDK, merge в anyapp).
+- Кнопка **Share** открывает системный chooser с последним скриншотом; если файл недоступен — deep link `https://t.me/{organizer_telegram}`.
+- Cooldown между подсказками: **`screenshotFeedbackCooldownMs`** (по умолчанию 2 мин). «Don't ask again» отключает фичу.
+- События ingest: `screenshot_feedback_prompt_shown`, `screenshot_feedback_shared` (`props.with_image`: `true` / `false` / `failed`).
+
+Организатор должен привязать Telegram в Dozenflow (карточка на экране тестов). Без `organizer_telegram` в init фича не активируется.
+
 ## Tracked Play Install Referrer (SDK ≥ 0.2.11)
 
 Если тестер установил anyapp по **отслеживаемой** ссылке организатора (DozenFlow → Play с `referrer=df_{token}`), SDK один раз читает **Play Install Referrer** и передаёт строку в **`install_referrer`** на `POST /v1/init`. Ошибка чтения не блокирует handshake. Сервер сопоставляет установку с кликом по invite.

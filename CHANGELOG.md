@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.16] — 2026-06-30
+
+### Added
+
+- **Screenshot feedback:** when `POST /v1/init` returns `organizer_telegram` and the organizer linked Telegram in Dozenflow, the SDK detects screenshots (API 34+ `ScreenCaptureCallback`; older Android via `MediaStore` observer) and shows a dialog to share the screenshot with the organizer on Telegram. Opt out with `ClosedTestOptions.screenshotFeedbackEnabled = false` or manifest `io.closedtest.sdk.screenshot_feedback_enabled`. Events: `screenshot_feedback_prompt_shown`, `screenshot_feedback_shared`.
+
 ## [0.2.15] — 2026-06-29
 
 ### Added
