@@ -502,28 +502,18 @@ internal object SdkController {
             installReferrer = installReferrer,
         )
         val result = withContext(Dispatchers.IO) { ingest.postInit(req) }
-        result.onSuccess { applyInitResponse(it) }
+        result.onSuccess { applyInitResponse(it, fromFullInit = true) }
     }
 
-    private fun applyInitResponse(dto: InitResponseDto) {
+    private fun applyInitResponse(dto: InitResponseDto, fromFullInit: Boolean) {
         tokenStore.sessionToken = dto.sessionToken
         tokenStore.refreshToken = dto.refreshToken
         val enabled = dto.ingestEnabled ?: true
-        appCtx.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
-            .edit()
+        val runtimePrefs = appCtx.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
+        runtimePrefs.edit()
             .putBoolean(KEY_INGEST_ENABLED, enabled)
             .apply()
-        val organizerTelegram = TelegramUsername.normalize(dto.organizerTelegram.orEmpty())
-        appCtx.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
-            .edit()
-            .apply {
-                if (organizerTelegram != null) {
-                    putString(KEY_ORGANIZER_TELEGRAM, organizerTelegram)
-                } else {
-                    remove(KEY_ORGANIZER_TELEGRAM)
-                }
-            }
-            .apply()
+        val organizerTelegram = resolveOrganizerTelegram(runtimePrefs, dto.organizerTelegram, fromFullInit)
         dto.serverHeartbeatIntervalMs?.let { heartbeatMs = it }
         val app = appCtx.applicationContext
         if (app is Application) {
@@ -595,11 +585,37 @@ internal object SdkController {
         val result = withContext(Dispatchers.IO) { ingest.postRefresh(rt) }
         return result.fold(
             onSuccess = {
-                applyInitResponse(it)
+                applyInitResponse(it, fromFullInit = false)
                 true
             },
             onFailure = { false },
         )
+    }
+
+    /**
+     * Refresh responses omit `organizer_telegram`; only full init clears it when the server stops sending it.
+     */
+    private fun resolveOrganizerTelegram(
+        runtimePrefs: android.content.SharedPreferences,
+        rawFromResponse: String?,
+        fromFullInit: Boolean,
+    ): String? {
+        if (rawFromResponse != null) {
+            val normalized = TelegramUsername.normalize(rawFromResponse)
+            runtimePrefs.edit().apply {
+                if (normalized != null) {
+                    putString(KEY_ORGANIZER_TELEGRAM, normalized)
+                } else {
+                    remove(KEY_ORGANIZER_TELEGRAM)
+                }
+            }.apply()
+            return normalized
+        }
+        if (fromFullInit) {
+            runtimePrefs.edit().remove(KEY_ORGANIZER_TELEGRAM).apply()
+            return null
+        }
+        return runtimePrefs.getString(KEY_ORGANIZER_TELEGRAM, null)
     }
 
     private suspend fun flushBlocking() {

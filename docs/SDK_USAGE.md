@@ -243,7 +243,7 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 - Cooldown между подсказками: **`screenshotFeedbackCooldownMs`** (по умолчанию 2 мин). «Don't ask again» отключает фичу.
 - События ingest: `screenshot_feedback_prompt_shown`, `screenshot_feedback_shared` (`props.with_image`: `true` / `false` / `failed`).
 
-Организатор должен привязать Telegram в Dozenflow (карточка на экране тестов). Без `organizer_telegram` в init фича не активируется.
+Организатор должен привязать Telegram в Dozenflow (карточка на экране тестов). Без `organizer_telegram` в init фича не активируется. Нужен публичный **@username** в Telegram (аккаунт без username не подойдёт). После обновления SDK до **0.2.18+** перезапустите anyapp (или очистите данные), чтобы снова прошёл `POST /v1/init` с привязанным Telegram.
 
 ## Tracked Play Install Referrer (SDK ≥ 0.2.11)
 

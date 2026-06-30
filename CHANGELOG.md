@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.18] — 2026-06-29
+
+### Fixed
+
+- **Screenshot feedback after session refresh:** `POST /v1/session/refresh` does not clear stored `organizer_telegram`; full `POST /v1/init` still updates or clears it. Fixes missing dialog when SDK reuses refresh token on cold start (0.2.14+).
+- **Screenshot detection on Android 14+:** keep `ScreenCaptureCallback` registered across `onPause` (unregister on `onStop`) so OEM screenshot UI does not disable detection.
+
 ## [0.2.17] — 2026-06-29
 
 ### Changed

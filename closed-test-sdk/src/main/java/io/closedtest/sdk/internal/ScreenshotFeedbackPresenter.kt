@@ -84,21 +84,23 @@ internal object ScreenshotFeedbackPresenter {
             object : Application.ActivityLifecycleCallbacks {
                 override fun onActivityCreated(activity: Activity, savedInstanceState: android.os.Bundle?) = Unit
 
-                override fun onActivityStarted(activity: Activity) = Unit
+                override fun onActivityStarted(activity: Activity) {
+                    weakTopActivity = WeakReference(activity)
+                    registerScreenCaptureCallback(activity)
+                }
 
                 override fun onActivityResumed(activity: Activity) {
                     weakTopActivity = WeakReference(activity)
-                    registerScreenCaptureCallback(activity)
                     if (pendingPrompt && !dialogShowing && canShowOnActivity(activity)) {
                         tryShowDialog(activity)
                     }
                 }
 
-                override fun onActivityPaused(activity: Activity) {
+                override fun onActivityPaused(activity: Activity) = Unit
+
+                override fun onActivityStopped(activity: Activity) {
                     unregisterScreenCaptureCallback(activity)
                 }
-
-                override fun onActivityStopped(activity: Activity) = Unit
 
                 override fun onActivitySaveInstanceState(activity: Activity, outState: android.os.Bundle) = Unit
 
