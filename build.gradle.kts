@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.jreleaser)
 }
@@ -14,10 +15,10 @@ subprojects {
     configurations.configureEach {
         resolutionStrategy {
             force(
-                "org.bouncycastle:bcprov-jdk18on:1.78.1",
-                "org.bouncycastle:bcutil-jdk18on:1.78.1",
-                "org.bouncycastle:bcpg-jdk18on:1.78.1",
-                "org.bouncycastle:bcpkix-jdk18on:1.78.1",
+                "org.bouncycastle:bcprov-jdk18on:1.84",
+                "org.bouncycastle:bcutil-jdk18on:1.84",
+                "org.bouncycastle:bcpg-jdk18on:1.84",
+                "org.bouncycastle:bcpkix-jdk18on:1.84",
             )
         }
     }
@@ -26,10 +27,10 @@ subprojects {
 configurations.configureEach {
     resolutionStrategy {
         force(
-            "org.bouncycastle:bcprov-jdk18on:1.78.1",
-            "org.bouncycastle:bcutil-jdk18on:1.78.1",
-            "org.bouncycastle:bcpg-jdk18on:1.78.1",
-            "org.bouncycastle:bcpkix-jdk18on:1.78.1",
+            "org.bouncycastle:bcprov-jdk18on:1.84",
+            "org.bouncycastle:bcutil-jdk18on:1.84",
+            "org.bouncycastle:bcpg-jdk18on:1.84",
+            "org.bouncycastle:bcpkix-jdk18on:1.84",
         )
     }
 }
