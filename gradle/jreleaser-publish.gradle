@@ -1,11 +1,18 @@
 /**
  * Applied only for Maven Central staging / jreleaserDeploy (see root build.gradle.kts).
  * Version must match gradle/libs.versions.toml → jreleaser.
- * Groovy (not .kts): applied scripts do not get JReleaser Kotlin DSL accessors at compile time.
+ * Applied scripts cannot use plugins {}; use buildscript + apply plugin instead.
  */
-plugins {
-    id 'org.jreleaser' version '1.25.0'
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'org.jreleaser:org.jreleaser.gradle.plugin:1.25.0'
+    }
 }
+
+apply plugin: 'org.jreleaser'
 
 def jreleaserConfigFileName =
     findProperty('jreleaserConfigFile') ?: System.getenv('JRELEASER_CONFIG_FILE') ?: 'jreleaser.yml'
