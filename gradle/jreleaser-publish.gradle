@@ -1,0 +1,21 @@
+/**
+ * Applied only for Maven Central staging / jreleaserDeploy (see root build.gradle.kts).
+ * Version must match gradle/libs.versions.toml → jreleaser.
+ * Groovy (not .kts): applied scripts do not get JReleaser Kotlin DSL accessors at compile time.
+ */
+plugins {
+    id 'org.jreleaser' version '1.25.0'
+}
+
+def jreleaserConfigFileName =
+    findProperty('jreleaserConfigFile') ?: System.getenv('JRELEASER_CONFIG_FILE') ?: 'jreleaser.yml'
+
+jreleaser {
+    dependsOnAssemble = false
+    configFile = layout.projectDirectory.file(jreleaserConfigFileName)
+}
+
+// jreleaserDeploy does not auto-stage modules — each workflow publishes its staging repo first.
+tasks.named('jreleaserDeploy') {
+    // Intentionally no dependsOn; see publish-maven-central*.yml
+}

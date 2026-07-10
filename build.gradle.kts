@@ -30,7 +30,7 @@ private val jreleaserTasksRequested: Boolean
         }
 
 if (jreleaserTasksRequested) {
-    apply(from = rootProject.file("gradle/jreleaser-publish.gradle.kts"))
+    apply(from = rootProject.file("gradle/jreleaser-publish.gradle"))
 }
 
 // JReleaser PGP + Gradle/AGP: avoid old bcprov on the classpath (NoSuchMethodError on BigIntegers.writeUnsignedByteArray).
