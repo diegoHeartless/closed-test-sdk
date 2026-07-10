@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+## [0.2.19] — 2026-07-10
+
+### Changed
+
+- **Build toolchain:** Gradle 9.6.1, AGP 9.0.1, Kotlin 2.4.0, KSP 2.3.9; AGP built-in Kotlin; dependency updates (Room 2.7.2, BouncyCastle 1.84, JReleaser 1.25.0). No public API changes.
+
 ## [0.2.18] — 2026-06-29
 
 ### Fixed
