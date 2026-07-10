@@ -8,6 +8,9 @@ buildscript {
         // AGP 9 built-in Kotlin: pin KGP/KSP above AGP defaults (see AGP 9 release notes).
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
         classpath("com.google.devtools.ksp:symbol-processing-gradle-plugin:${libs.versions.ksp.get()}")
+        if (gradle.startParameter.taskNames.any { task -> task.contains("jreleaser", ignoreCase = true) }) {
+            classpath("org.jreleaser:org.jreleaser.gradle.plugin:${libs.versions.jreleaser.get()}")
+        }
     }
 }
 
@@ -21,13 +24,9 @@ plugins {
     alias(libs.plugins.ksp) apply false
 }
 
-/** JReleaser 1.x pulls javax.activation on JDK 17+; only load for Central staging/deploy (not assemble / publishToMavenLocal). */
+/** JReleaser 1.x pulls javax.activation on JDK 17+; only load for jreleaser* tasks (not assemble / staging publish). */
 private val jreleaserTasksRequested: Boolean
-    get() =
-        gradle.startParameter.taskNames.any { task ->
-            task.contains("jreleaser", ignoreCase = true) ||
-                (task.contains("publish", ignoreCase = true) && task.contains("Staging", ignoreCase = true))
-        }
+    get() = gradle.startParameter.taskNames.any { task -> task.contains("jreleaser", ignoreCase = true) }
 
 if (jreleaserTasksRequested) {
     apply(from = rootProject.file("gradle/jreleaser-publish.gradle"))

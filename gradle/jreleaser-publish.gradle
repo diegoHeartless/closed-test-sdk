@@ -1,17 +1,8 @@
 /**
- * Applied only for Maven Central staging / jreleaserDeploy (see root build.gradle.kts).
+ * Applied only for jreleaser* tasks (see root build.gradle.kts).
+ * Plugin classpath lives in root buildscript — applied scripts cannot declare plugins {}.
  * Version must match gradle/libs.versions.toml → jreleaser.
- * Applied scripts cannot use plugins {}; use buildscript + apply plugin instead.
  */
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'org.jreleaser:org.jreleaser.gradle.plugin:1.25.0'
-    }
-}
-
 apply plugin: 'org.jreleaser'
 
 def jreleaserConfigFileName =
