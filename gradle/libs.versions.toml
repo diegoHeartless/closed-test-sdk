@@ -1,22 +1,23 @@
 [versions]
-closedTestSdk = "0.2.19"
-jreleaser = "1.25.0"
-agp = "9.0.1"
-kotlin = "2.4.0"
-ksp = "2.3.9"
+closedTestSdk = "0.2.20"
+jreleaser = "1.23.0"
+agp = "8.3.2"
+kotlin = "1.9.24"
+ksp = "1.9.24-1.0.20"
 coreKtx = "1.13.1"
 lifecycle = "2.8.4"
-activityCompose = "1.13.0"
+activityCompose = "1.9.2"
 composeBom = "2024.09.00"
-room = "2.7.2"
+room = "2.6.1"
 okhttp = "4.12.0"
-serialization = "1.8.1"
+serialization = "1.6.3"
 desugar = "2.0.4"
 coroutines = "1.8.1"
 installreferrer = "2.2"
 startup = "1.1.1"
 work = "2.9.1"
 navigation = "2.8.4"
+composeCompiler = "1.5.14"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,7 +46,7 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }

@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "../DetoxRPG"
+		},
+		{
+			"path": "../dozenflow-devvit"
 		}
 	],
 	"settings": {}

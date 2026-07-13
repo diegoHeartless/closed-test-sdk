@@ -335,7 +335,8 @@ Module **[`examples/sample`](examples/sample)** demonstrates `trackScreen`, `tra
 ## Requirements
 
 - **minSdk 24**
-- Kotlin / Android Gradle Plugin versions: see root [`gradle/libs.versions.toml`](gradle/libs.versions.toml)
+- **Kotlin / AGP:** SDK **0.2.20+** matches the **0.2.18** toolchain (Kotlin **1.9.24**, AGP **8.3.2**). Avoid **0.2.19** on host apps that are not on Kotlin 2.4+.
+- Exact versions: root [`gradle/libs.versions.toml`](gradle/libs.versions.toml)
 
 ---
 
