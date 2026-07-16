@@ -20,7 +20,7 @@ dependencies {
 }
 ```
 
-Актуальная версия — в [`gradle/libs.versions.toml`](../gradle/libs.versions.toml) (`closedTestSdk`, сейчас **0.2.11**).
+Актуальная версия — в [`gradle/libs.versions.toml`](../gradle/libs.versions.toml) (`closedTestSdk`, сейчас **0.2.20**).
 
 ## Инициализация (авто-init, по умолчанию)
 
