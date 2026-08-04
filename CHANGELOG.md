@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file. SDK version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html); public API is `io.closedtest.sdk`.
 
+# Unreleased
+
+## [0.2.21] — 2026-07-30
+
+### Added
+
+- **`ClosedTest.rehandshake(init)`:** forces a full `POST /v1/init` with updated marketplace fields (e.g. after host login).
+- **Manifest meta-data `io.closedtest.sdk.owner_email` / `google_group_url` / `invite_link`:** all required for AndroidX Startup auto-init; without them auto-init is skipped.
+
+### Changed
+
+- **`ClosedTestInit.ownerEmail` is required** (non-blank). Blank email throws at construction.
+- **`ClosedTestInit.googleGroupUrl` and `inviteLink` are required** (non-blank).
+- **`ClosedTest.initialize(context, publishableKey, ownerEmail, googleGroupUrl, inviteLink, options)`** — convenience overload requires the full channel.
+- **Force full init** on every handshake path that uses required channel fields (test/account upsert).
+- **Manifest auto-init** requires `owner_email`, `google_group_url`, and `invite_link`; missing any → skip.
+
+# Unreleased (prior)
+
+- **Explicit init payload for marketplace flows:** added public `ClosedTestInit` and a new `ClosedTest.initialize(context, init, options)` overload. SDK can now include optional `owner_email`, `google_group_url`, and `invite_link` in `POST /v1/init` for server-side test/account matching and test-channel upsert. Legacy `initialize(context, publishableKey, options)` and AndroidX Startup remain supported.
+
 ## [0.2.20] — 2026-07-13
 
 ### Fixed

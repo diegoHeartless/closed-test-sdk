@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import android.app.Application
 import io.closedtest.sdk.BuildConfig
+import io.closedtest.sdk.ClosedTestInit
 import io.closedtest.sdk.ClosedTestOptions
 import io.closedtest.sdk.internal.db.AppDatabase
 import io.closedtest.sdk.internal.db.QueuedEventDao
@@ -51,6 +52,8 @@ internal object SdkController {
     private const val PREFS_RUNTIME = "io.closedtest.sdk.runtime"
     private const val KEY_INGEST_ENABLED = "ingest_enabled"
     private const val KEY_ORGANIZER_TELEGRAM = "organizer_telegram"
+    private const val KEY_LAST_HANDSHAKE_VERSION_CODE = "last_handshake_version_code"
+    private const val KEY_LAST_HANDSHAKE_OWNER_EMAIL = "last_handshake_owner_email"
     private const val PREFS_ROSTER_SCHEDULE = "io.closedtest.sdk.roster_contact_schedule"
     private const val KEY_FIRST_COLD_START_SEEN = "first_cold_start_seen"
 
@@ -59,7 +62,7 @@ internal object SdkController {
     private var noop = false
 
     private lateinit var appCtx: Context
-    private var publishableKey: String = ""
+    private lateinit var initPayload: ClosedTestInit
     private lateinit var options: ClosedTestOptions
     private lateinit var db: AppDatabase
     private lateinit var dao: QueuedEventDao
@@ -133,13 +136,13 @@ internal object SdkController {
         }
     }
 
-    fun initialize(context: Context, publishableKey: String, options: ClosedTestOptions) {
+    fun initialize(context: Context, init: ClosedTestInit, options: ClosedTestOptions) {
         synchronized(lock) {
             if (initialized) return
             initialized = true
             val app = context.applicationContext
             appCtx = app
-            this.publishableKey = publishableKey
+            this.initPayload = normalizeInit(init)
             this.options = options
             @Suppress("DEPRECATION")
             val appInfo = app.packageManager.getApplicationInfo(app.packageName, 0)
@@ -191,11 +194,35 @@ internal object SdkController {
             }
 
             sdkScope?.launch {
-                ensureIngestSession()
+                ensureIngestSession(forceFullInit = shouldForceFullInit())
                 flushBlocking()
             }
         }
     }
+
+    /**
+     * Updates marketplace / Advanced init fields and forces `POST /v1/init`
+     * (e.g. after ProofFlow login when organizer email becomes known).
+     * No-op if SDK was never initialized or is in noop mode.
+     */
+    fun rehandshake(init: ClosedTestInit) {
+        synchronized(lock) {
+            if (!initialized || noop) return
+            this.initPayload = normalizeInit(init)
+        }
+        sdkScope?.launch {
+            ensureIngestSession(forceFullInit = true)
+            flushBlocking()
+        }
+    }
+
+    private fun normalizeInit(init: ClosedTestInit): ClosedTestInit =
+        ClosedTestInit(
+            ownerEmail = init.ownerEmail.trim(),
+            googleGroupUrl = init.googleGroupUrl.trim(),
+            inviteLink = init.inviteLink.trim(),
+            publishableKey = init.publishableKey?.trim()?.takeIf { it.isNotEmpty() },
+        )
 
     fun handleDeepLink(uri: Uri?): Boolean {
         if (!initialized || uri == null) return false
@@ -475,19 +502,29 @@ internal object SdkController {
         mainHandler.postDelayed(flushRunnable, FLUSH_DEBOUNCE_MS)
     }
 
-    /** Reuse refresh token when possible; `POST /v1/init` only when no valid session can be obtained. */
-    private suspend fun ensureIngestSession() {
+    /**
+     * Reuse refresh token when possible; `POST /v1/init` when forced (marketplace / version change)
+     * or when no valid session can be obtained.
+     */
+    private suspend fun ensureIngestSession(forceFullInit: Boolean = false) {
         if (!ingestAllowed()) return
+        if (forceFullInit) {
+            postInitHandshake()
+            return
+        }
         if (!tokenStore.sessionToken.isNullOrBlank()) return
         if (refreshTokens()) return
         postInitHandshake()
     }
 
+    /** Always force full `POST /v1/init` — ownerEmail is required for account/test upsert. */
+    private fun shouldForceFullInit(): Boolean = true
+
     private suspend fun postInitHandshake() {
         if (!ingestAllowed()) return
         val installReferrer = InstallReferrerReader.readOnce(appCtx)
         val req = InitRequestDto(
-            publishableKey = publishableKey.takeIf { it.isNotBlank() },
+            publishableKey = initPayload.publishableKey.takeIf { !it.isNullOrBlank() },
             packageName = packageName,
             buildType = buildTypeLabel,
             versionName = appVersion,
@@ -500,9 +537,19 @@ internal object SdkController {
             testSessionId = bindingStore.testSessionId,
             testerId = bindingStore.testerId,
             installReferrer = installReferrer,
+            ownerEmail = initPayload.ownerEmail,
+            googleGroupUrl = initPayload.googleGroupUrl,
+            inviteLink = initPayload.inviteLink,
         )
         val result = withContext(Dispatchers.IO) { ingest.postInit(req) }
-        result.onSuccess { applyInitResponse(it, fromFullInit = true) }
+        result.onSuccess {
+            applyInitResponse(it, fromFullInit = true)
+            appCtx.getSharedPreferences(PREFS_RUNTIME, Context.MODE_PRIVATE)
+                .edit()
+                .putLong(KEY_LAST_HANDSHAKE_VERSION_CODE, versionCodeLong)
+                .putString(KEY_LAST_HANDSHAKE_OWNER_EMAIL, initPayload.ownerEmail)
+                .apply()
+        }
     }
 
     private fun applyInitResponse(dto: InitResponseDto, fromFullInit: Boolean) {

@@ -3,10 +3,14 @@ plugins {
     id("base")
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.jreleaser)
+}
+
+// When ProofFlow includes this repo via includeBuild, skip release tooling on the composite classpath.
+if (gradle.parent == null) {
+    apply(from = "jreleaser.gradle.kts")
 }
 
 // JReleaser PGP + Gradle/AGP: avoid old bcprov on the classpath (NoSuchMethodError on BigIntegers.writeUnsignedByteArray).
@@ -36,18 +40,3 @@ configurations.configureEach {
 
 group = "com.groundspaceteam"
 version = libs.versions.closedTestSdk.get()
-
-val jreleaserConfigFileName =
-    (findProperty("jreleaserConfigFile") as String?)
-        ?: System.getenv("JRELEASER_CONFIG_FILE")
-        ?: "jreleaser.yml"
-
-jreleaser {
-    dependsOnAssemble = false
-    configFile.set(rootProject.layout.projectDirectory.file(jreleaserConfigFileName))
-}
-
-// jreleaserDeploy does not auto-stage modules — each workflow publishes its staging repo first.
-tasks.named("jreleaserDeploy") {
-    // Intentionally no dependsOn; see publish-maven-central*.yml
-}

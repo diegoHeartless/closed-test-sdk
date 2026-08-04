@@ -49,6 +49,33 @@ SDK автоматически инициализируется через Andro
 - URL backend **не нужно** передавать: он зашит внутри SDK (`https://api.groundspaceteam.com`).
 - **`publishable_key`** в манифесте опционален: при отсутствии или пустом значении handshake идёт в **Base**; иначе — **Advanced** с ключом (через манифест или `ClosedTest.initialize`).
 - Ручной `initialize(...)` остаётся доступным, повторный вызов безопасно игнорируется.
+- Auto-init через манифест требует **`io.closedtest.sdk.owner_email`**, **`google_group_url`**, **`invite_link`**; без них Startup пропускает init — вызывайте `ClosedTest.initialize` с `ClosedTestInit` из кода.
+
+## Инициализация для marketplace / mutual flow
+
+Anyapp должен передавать **обязательный канал теста** уже на этапе `POST /v1/init`:
+
+```kotlin
+ClosedTest.initialize(
+    context = this,
+    init = ClosedTestInit(
+        ownerEmail = "dev@example.com",
+        googleGroupUrl = "https://groups.google.com/g/your-group",
+        inviteLink = "https://play.google.com/apps/testing/com.example.app",
+        publishableKey = null, // или "pk_live_..." для Advanced
+    ),
+    options = ClosedTestOptions(),
+)
+```
+
+Поля:
+
+- `ownerEmail` — **обязательно**; identity владельца/тестера для матчинга аккаунта и upsert теста.
+- `googleGroupUrl` — **обязательно**; ссылка на Google Group или аналогичный канал присоединения.
+- `inviteLink` — **обязательно**; Play testing link или другой install URL.
+- `publishableKey` — опционально; `null`/blank = Base ingest.
+
+SDK **отправляет** эти поля в `POST /v1/init` как `owner_email`, `google_group_url`, `invite_link`. Без любого из трёх обязательных полей init не компилируется / auto-init не стартует.
 
 ### Ключ без хардкода в git (рекомендуется)
 
@@ -122,6 +149,9 @@ SDK может показать **локальное** уведомление в
 ClosedTest.initialize(
     context,
     publishableKey,
+    ownerEmail = "dev@example.com",
+    googleGroupUrl = "https://groups.google.com/g/your-group",
+    inviteLink = "https://play.google.com/apps/testing/com.example.app",
     ClosedTestOptions(
         dailyReminderEnabled = true,
         dailyReminderHourLocal = 15,
@@ -209,7 +239,7 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 Если сервер возвращает **`proofflow_test_id`** в ответе **`POST /v1/init`** (связка теста ProofFlow с ingest) и подсказка **не отключена** издателем, SDK после успешного handshake может показать **диалог** на текущей Activity с кнопкой открыть ProofFlow по ссылке **`proofflow://test/{proofflow_test_id}`** (PF-TEST).
 
 - По умолчанию фича **включена** (`ClosedTestOptions.proofFlowHintEnabled = true`).
-- Выключение программно: `ClosedTest.initialize(context, publishableKey, ClosedTestOptions(proofFlowHintEnabled = false))`.
+- Выключение программно: через `ClosedTestInit` + `ClosedTestOptions(proofFlowHintEnabled = false)`.
 - При автозапуске через AndroidX Startup: чтобы отключить, в `<application>` добавить  
   `<meta-data android:name="io.closedtest.sdk.proofflow_hint_enabled" android:value="false" />`.
 - Установка ProofFlow проверяется по пакетам из `ClosedTestOptions.proofFlowPackageNames` (по умолчанию `com.ground.proofflow` и `.debug`). При необходимости передайте свой список.
@@ -222,7 +252,7 @@ ClosedTest.bindTester(testerId = "...", testSessionId = "...")
 Опциональный диалог **один раз** после первого `session_start` (`cold_start`): тестер может передать Telegram username организатору (`POST /v1/tester-contact`, тот же session token, что и для `/v1/events`).
 
 - По умолчанию **выключено** (`ClosedTestOptions.rosterContactPromptEnabled = false`).
-- Включение: `ClosedTest.initialize(context, publishableKey, ClosedTestOptions(rosterContactPromptEnabled = true))`.
+- Включение: `ClosedTestOptions(rosterContactPromptEnabled = true)` вместе с полным `ClosedTestInit`.
 - Авто-init: `<meta-data android:name="io.closedtest.sdk.roster_contact_prompt_enabled" android:value="true" />`.
 - Username не попадает в `track_event.props` — только в dedicated endpoint. Организатор видит контакт в ProofFlow (roster / stats).
 
