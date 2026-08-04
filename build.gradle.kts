@@ -12,7 +12,20 @@ plugins {
 // When ProofFlow includes this repo via includeBuild, skip release tooling on the composite classpath.
 if (gradle.parent == null) {
     apply(plugin = "org.jreleaser")
-    apply(from = "jreleaser.gradle.kts")
+
+    val jreleaserConfigFileName =
+        (findProperty("jreleaserConfigFile") as String?)
+            ?: System.getenv("JRELEASER_CONFIG_FILE")
+            ?: "jreleaser.yml"
+
+    jreleaser {
+        dependsOnAssemble = false
+        configFile.set(rootProject.layout.projectDirectory.file(jreleaserConfigFileName))
+    }
+
+    tasks.named("jreleaserDeploy") {
+        // Intentionally no dependsOn; see publish-maven-central*.yml
+    }
 }
 
 // JReleaser PGP + Gradle/AGP: avoid old bcprov on the classpath (NoSuchMethodError on BigIntegers.writeUnsignedByteArray).
