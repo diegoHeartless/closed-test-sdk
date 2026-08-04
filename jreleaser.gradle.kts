@@ -1,13 +1,11 @@
-plugins {
-    id("org.jreleaser") version "1.23.0"
-}
+import org.jreleaser.gradle.plugin.JReleaserExtension
 
 val jreleaserConfigFileName =
     (findProperty("jreleaserConfigFile") as String?)
         ?: System.getenv("JRELEASER_CONFIG_FILE")
         ?: "jreleaser.yml"
 
-jreleaser {
+configure<JReleaserExtension> {
     dependsOnAssemble = false
     configFile.set(rootProject.layout.projectDirectory.file(jreleaserConfigFileName))
 }

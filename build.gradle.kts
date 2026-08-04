@@ -6,10 +6,12 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.jreleaser) apply false
 }
 
 // When ProofFlow includes this repo via includeBuild, skip release tooling on the composite classpath.
 if (gradle.parent == null) {
+    apply(plugin = "org.jreleaser")
     apply(from = "jreleaser.gradle.kts")
 }
 
