@@ -109,6 +109,9 @@ internal data class InitRequestDto(
     @SerialName("test_session_id") val testSessionId: String? = null,
     @SerialName("tester_id") val testerId: String? = null,
     @SerialName("install_referrer") val installReferrer: String? = null,
+    @SerialName("owner_email") val ownerEmail: String? = null,
+    @SerialName("google_group_url") val googleGroupUrl: String? = null,
+    @SerialName("invite_link") val inviteLink: String? = null,
 )
 
 @Serializable

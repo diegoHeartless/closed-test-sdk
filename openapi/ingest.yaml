@@ -213,6 +213,21 @@ components:
           description: |
             Play Install Referrer string when install came from a tracked Play link
             (`referrer=df_{token}`). Optional; SDK reads once per install and does not block init on failure.
+        owner_email:
+          type: string
+          description: |
+            Required by SDK ≥ 0.2.21 (`ClosedTestInit.ownerEmail`). Organizer/developer email
+            for marketplace account matching and test upsert. Older clients may omit; server still accepts null.
+        google_group_url:
+          type: string
+          description: |
+            Required by SDK ≥ 0.2.21 (`ClosedTestInit.googleGroupUrl`). Google Group URL or equivalent
+            tester-join channel. Older clients may omit; server still accepts null.
+        invite_link:
+          type: string
+          description: |
+            Required by SDK ≥ 0.2.21 (`ClosedTestInit.inviteLink`). Play testing / install URL.
+            Older clients may omit; server still accepts null.
 
     InitResponse:
       type: object

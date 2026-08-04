@@ -9,6 +9,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ClosedTestSample">
         <meta-data
+            android:name="io.closedtest.sdk.owner_email"
+            android:value="sample@example.com" />
+        <meta-data
+            android:name="io.closedtest.sdk.google_group_url"
+            android:value="https://groups.google.com/g/closed-test-sample" />
+        <meta-data
+            android:name="io.closedtest.sdk.invite_link"
+            android:value="https://play.google.com/apps/testing/io.closedtest.sample" />
+        <meta-data
             android:name="io.closedtest.sdk.publishable_key"
             android:value="${closedTestPublishableKey}" />
         <activity

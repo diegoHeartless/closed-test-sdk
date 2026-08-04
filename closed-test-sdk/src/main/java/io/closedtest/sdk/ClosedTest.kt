@@ -9,8 +9,10 @@ import io.closedtest.sdk.internal.SdkController
  * Entry point for the closed-test proof SDK.
  *
  * By default SDK auto-initializes via AndroidX Startup when `io.closedtest.sdk.auto_init_enabled`
- * is true (default). **`publishable_key`** is optional: omit or leave empty for **Base** ingest
- * (identity by package + build type + version); set for **Advanced** ingest with server-side key policy.
+ * is true (default) **and** required channel meta-data is set (`owner_email`, `google_group_url`,
+ * `invite_link`). **`publishable_key`** is optional: omit or leave empty for **Base** ingest
+ * (identity by package + build type + version); set for **Advanced** ingest with server-side key
+ * policy. **`ownerEmail`, `googleGroupUrl`, and `inviteLink` are required** on every init path.
  *
  * Call [initialize] manually only if you need explicit control; repeated calls are ignored.
  */
@@ -37,10 +39,50 @@ object ClosedTest {
 
     /**
      * Initializes networking, persistence, lifecycle observers, and optional automatic sessions.
+     *
+     * [ownerEmail], [googleGroupUrl], and [inviteLink] are required (same as [ClosedTestInit]).
      */
     @JvmStatic
-    fun initialize(context: Context, publishableKey: String, options: ClosedTestOptions) {
-        SdkController.initialize(context.applicationContext, publishableKey, options)
+    fun initialize(
+        context: Context,
+        publishableKey: String,
+        ownerEmail: String,
+        googleGroupUrl: String,
+        inviteLink: String,
+        options: ClosedTestOptions,
+    ) {
+        SdkController.initialize(
+            context.applicationContext,
+            ClosedTestInit(
+                ownerEmail = ownerEmail,
+                googleGroupUrl = googleGroupUrl,
+                inviteLink = inviteLink,
+                publishableKey = publishableKey,
+            ),
+            options,
+        )
+    }
+
+    /**
+     * Initializes the SDK with explicit test-channel fields for the init handshake.
+     *
+     * [ClosedTestInit.ownerEmail], [ClosedTestInit.googleGroupUrl], and [ClosedTestInit.inviteLink]
+     * are required so the backend can upsert the test from app code.
+     */
+    @JvmStatic
+    fun initialize(context: Context, init: ClosedTestInit, options: ClosedTestOptions) {
+        SdkController.initialize(context.applicationContext, init, options)
+    }
+
+    /**
+     * Forces a full `POST /v1/init` with updated [init] fields.
+     * Use after host login when the account email is known, or to re-upsert a ProofFlow test
+     * without clearing app data. No-op if [initialize] was never called.
+     * Channel fields on [init] must be non-blank.
+     */
+    @JvmStatic
+    fun rehandshake(init: ClosedTestInit) {
+        SdkController.rehandshake(init)
     }
 
     /** When `test_session_id` / `tester_id` or `referrer` / `install_referrer` query params are present, stores binding / tracked invite for init. */

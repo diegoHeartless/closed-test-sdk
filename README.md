@@ -73,6 +73,9 @@ The SDK **auto-starts** via [AndroidX App Startup](https://developer.android.com
 
 | Manifest meta-data | Effect |
 |--------------------|--------|
+| `io.closedtest.sdk.owner_email` | **Required** for auto-init. |
+| `io.closedtest.sdk.google_group_url` | **Required** for auto-init (Google Group / join channel). |
+| `io.closedtest.sdk.invite_link` | **Required** for auto-init (Play testing / install URL). |
 | `io.closedtest.sdk.publishable_key` | Non-empty → **Advanced**. Missing/empty → **Base** (if server accepts keyless for your `package_name`). |
 | `io.closedtest.sdk.auto_init_enabled` | Set `false` to disable Startup and call `ClosedTest.initialize` yourself. |
 | `io.closedtest.sdk.proofflow_hint_enabled` | Set `false` to disable the optional Dozenflow app hint dialog. |
@@ -81,17 +84,39 @@ The SDK **auto-starts** via [AndroidX App Startup](https://developer.android.com
 | `io.closedtest.sdk.daily_reminder_minute` | Minute `0`–`59` (default `0`). |
 | `io.closedtest.sdk.discovery_enabled` | Set `false` to disable the discovery ContentProvider. |
 
-Duplicate `ClosedTest.initialize(...)` calls with the same key are ignored.
+Duplicate `ClosedTest.initialize(...)` calls are ignored after the first successful init.
 
 ### Manual init
 
 ```kotlin
 ClosedTest.initialize(
     context = applicationContext,
-    publishableKey = "pk_live_YOUR_KEY_HERE", // optional for Base
+    publishableKey = "pk_live_YOUR_KEY_HERE", // optional for Base (pass "")
+    ownerEmail = "dev@example.com", // required
+    googleGroupUrl = "https://groups.google.com/g/your-group", // required
+    inviteLink = "https://play.google.com/apps/testing/com.example.app", // required
     options = ClosedTestOptions(/* see below */),
 )
 ```
+
+### Manual init for marketplace / mutual flow
+
+Use the explicit init payload when your backend should derive or upsert the test directly from app code:
+
+```kotlin
+ClosedTest.initialize(
+    context = applicationContext,
+    init = ClosedTestInit(
+        ownerEmail = "dev@example.com",
+        googleGroupUrl = "https://groups.google.com/g/your-group",
+        inviteLink = "https://play.google.com/apps/testing/com.example.app",
+        publishableKey = null, // or "pk_live_..." for Advanced
+    ),
+    options = ClosedTestOptions(),
+)
+```
+
+`ownerEmail`, `googleGroupUrl`, and `inviteLink` are **required** (non-blank). Auto-init without all three meta-data keys is skipped.
 
 ---
 
@@ -179,6 +204,9 @@ The SDK can schedule a **local** notification on the device — **no Firebase in
 ClosedTest.initialize(
     context = applicationContext,
     publishableKey = publishableKey,
+    ownerEmail = "dev@example.com",
+    googleGroupUrl = "https://groups.google.com/g/your-group",
+    inviteLink = "https://play.google.com/apps/testing/com.example.app",
     options = ClosedTestOptions(
         dailyReminderEnabled = true,
         dailyReminderHourLocal = 15,
